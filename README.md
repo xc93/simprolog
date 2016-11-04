@@ -7,6 +7,10 @@ The simple version that is considered in this OCaml implementation is called Sim
 The basic building blocks in SimProlog contains:
 
 Facts
- - Simple Facts
-   e.g. party. firstLetterLowerCase. endWithDot.
- - 
+  simple facts: party. maryIsHappy.
+  compound facts: eats(fred, oranges). likes(john, mary). age(ian, 2).
+Rules
+  mortal(X) :- human(X).
+  fun(X) :- red(X), car(X).
+  fun(X) :- blue(X), bike(X).
+  fun(ice_cream).
