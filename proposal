@@ -1,0 +1,39 @@
+CS 421: Programming Languages and Compilers
+Unit Project Proposal
+
+Team members
+  Xiaohong Chen <xc3@illinois.edu>
+  Haoyu Wang    <hwang158@illinois.edu>
+
+Project Proposal
+  We propose to implement a simple version of Prolog
+in OCaml. A program of such a simple version of Prolog
+language that we concern in this unit project, as SimProlog 
+we call it , consists of the following components.
+  (1) A number of *declarations* that declare predicates.
+  (2) A number of *base clauses* that state fact.
+  (3) One inquiry where free variables are allowed to show up.
+
+  A sample of such a SimProlog language looks the follows.
+    % This is a simple SimProlog program.
+    % Everything following '%' is a comment.
+    mother(X, Y) :- parent(X, Y), femail(X)
+    parent(john, bill)
+    parent(jane, bill)
+    femail(jane)
+    | ?- mother(M, bill)
+
+  Our unit project will consist of five basic building
+blocks, which are divided into either syntax category or
+semantics category. Each of us will be responsible for
+one category. The five basic building blocks are:
+  (1)[xc] A grammar for SimProlog language.
+  (2)[xc] A lexer that consumes streams of characters and
+recognizes tokens.
+  (3)[xc] A parser that consumes streams of tokens and build
+ASTs.
+  (4)[wh] An evaluator that takes ASTs, understands predicate
+declarations and facts, and answers the inquiry. This may
+include:
+  (4-1) A unification process.
+  (4-2) A backtracking mechanism.
