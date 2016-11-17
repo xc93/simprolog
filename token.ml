@@ -9,11 +9,13 @@
 type token =
   | EOF
   | COMMA
-  | CDASH
-  | QDASH
+  | CDASH               (* :- *)
   | LPAREN
   | RPAREN
   | DOT
+  | LBRAC
+  | RBRAC
+  | SEMICOLON
   | LWORD of (string)
   | UWORD of (string)
 

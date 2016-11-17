@@ -20,11 +20,13 @@ rule token = parse
   | space         { token lexbuf } (* skip over whitespace *)
   | eof           { EOF }
   | ":-"          { CDASH }
-  | "?-"          { QDASH }
   | '('           { LPAREN }
   | ')'           { RPAREN }
+  | '['		  { LBRAC }
+  | ']'	          { RBRAC }
   | '.'           { DOT }
   | ','           { COMMA }
+  | ';'	          { SEMICOLON }
   | lword as w    { LWORD w }
   | uword as w    { UWORD w } 
 

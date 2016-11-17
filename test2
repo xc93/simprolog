@@ -1,0 +1,3 @@
+happy(john).
+happy(marry).
+happy(happy(a)).
