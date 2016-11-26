@@ -1,0 +1,226 @@
+   0  $accept : %entry% $end
+
+   1  main : rule DOT
+   2       | inquery DOT
+
+   3  rule : term
+   4       | term CDASH term_list
+
+   5  inquery : QDASH term
+
+   6  term : lword
+   7       | uword
+   8       | lword LPAREN RPAREN
+   9       | lword LPAREN term_list RPAREN
+
+  10  term_list : term
+  11            | term COMMA term_list
+
+  12  lword : LWORD
+
+  13  uword : UWORD
+
+  14  %entry% : '\001' main
+
+state 0
+	$accept : . %entry% $end  (0)
+
+	'\001'  shift 1
+	.  error
+
+	%entry%  goto 2
+
+
+state 1
+	%entry% : '\001' . main  (14)
+
+	LWORD  shift 3
+	UWORD  shift 4
+	QDASH  shift 5
+	.  error
+
+	main  goto 6
+	rule  goto 7
+	inquery  goto 8
+	term  goto 9
+	lword  goto 10
+	uword  goto 11
+
+
+state 2
+	$accept : %entry% . $end  (0)
+
+	$end  accept
+
+
+state 3
+	lword : LWORD .  (12)
+
+	.  reduce 12
+
+
+state 4
+	uword : UWORD .  (13)
+
+	.  reduce 13
+
+
+state 5
+	inquery : QDASH . term  (5)
+
+	LWORD  shift 3
+	UWORD  shift 4
+	.  error
+
+	term  goto 12
+	lword  goto 10
+	uword  goto 11
+
+
+state 6
+	%entry% : '\001' main .  (14)
+
+	.  reduce 14
+
+
+state 7
+	main : rule . DOT  (1)
+
+	DOT  shift 13
+	.  error
+
+
+state 8
+	main : inquery . DOT  (2)
+
+	DOT  shift 14
+	.  error
+
+
+state 9
+	rule : term .  (3)
+	rule : term . CDASH term_list  (4)
+
+	CDASH  shift 15
+	DOT  reduce 3
+
+
+state 10
+	term : lword .  (6)
+	term : lword . LPAREN RPAREN  (8)
+	term : lword . LPAREN term_list RPAREN  (9)
+
+	LPAREN  shift 16
+	COMMA  reduce 6
+	CDASH  reduce 6
+	RPAREN  reduce 6
+	DOT  reduce 6
+
+
+state 11
+	term : uword .  (7)
+
+	.  reduce 7
+
+
+state 12
+	inquery : QDASH term .  (5)
+
+	.  reduce 5
+
+
+state 13
+	main : rule DOT .  (1)
+
+	.  reduce 1
+
+
+state 14
+	main : inquery DOT .  (2)
+
+	.  reduce 2
+
+
+state 15
+	rule : term CDASH . term_list  (4)
+
+	LWORD  shift 3
+	UWORD  shift 4
+	.  error
+
+	term  goto 17
+	term_list  goto 18
+	lword  goto 10
+	uword  goto 11
+
+
+state 16
+	term : lword LPAREN . RPAREN  (8)
+	term : lword LPAREN . term_list RPAREN  (9)
+
+	LWORD  shift 3
+	UWORD  shift 4
+	RPAREN  shift 19
+	.  error
+
+	term  goto 17
+	term_list  goto 20
+	lword  goto 10
+	uword  goto 11
+
+
+state 17
+	term_list : term .  (10)
+	term_list : term . COMMA term_list  (11)
+
+	COMMA  shift 21
+	RPAREN  reduce 10
+	DOT  reduce 10
+
+
+state 18
+	rule : term CDASH term_list .  (4)
+
+	.  reduce 4
+
+
+state 19
+	term : lword LPAREN RPAREN .  (8)
+
+	.  reduce 8
+
+
+state 20
+	term : lword LPAREN term_list . RPAREN  (9)
+
+	RPAREN  shift 22
+	.  error
+
+
+state 21
+	term_list : term COMMA . term_list  (11)
+
+	LWORD  shift 3
+	UWORD  shift 4
+	.  error
+
+	term  goto 17
+	term_list  goto 23
+	lword  goto 10
+	uword  goto 11
+
+
+state 22
+	term : lword LPAREN term_list RPAREN .  (9)
+
+	.  reduce 9
+
+
+state 23
+	term_list : term COMMA term_list .  (11)
+
+	.  reduce 11
+
+
+12 terminals, 9 nonterminals
+15 grammar rules, 24 states

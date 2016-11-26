@@ -20,6 +20,7 @@ rule token = parse
   | space         { token lexbuf } (* skip over whitespace *)
   | eof           { EOF }
   | ":-"          { CDASH }
+  | "?-"          { QDASH }
   | '('           { LPAREN }
   | ')'           { RPAREN }
   | '['		  { LBRAC }

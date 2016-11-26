@@ -1,5 +1,0 @@
-leq(a, b) .
-leq(b, c) .
-leq(c, d) .
-leq(X, X) :- true .
-leq(X, Y) :- leq(X, Z), leq(Z, Y) .

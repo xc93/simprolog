@@ -10,6 +10,7 @@ type token =
   | EOF
   | COMMA
   | CDASH               (* :- *)
+  | QDASH
   | LPAREN
   | RPAREN
   | DOT

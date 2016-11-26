@@ -8,34 +8,33 @@
 %token EOF COMMA CDASH QDASH LPAREN RPAREN DOT
 
 %start main
-%type <Ast.dec> main
+%type <Ast.command> main
 %%
 
 main:
-  | fact DOT
-    { FactStatement $1 }
   | rule DOT
-    { RuleStatement $1 }
+    { $1 }
   | inquery DOT
-    { InqueryStatement $1 }
+    { $1 }
 
+rule:
+  | term  { Rule($1, []) }
+  | term CDASH term_list { Rule($1, $3) }
 
-fact:
-  | lword                             { SimpleFact $1 }
-  | lword LPAREN lword_list RPAREN    { CompoundFact($1, $3) }
+inquery:
+  | QDASH term { Inquery $2 }
 
+term:
+  | lword { ConstTerm $1 }
+  | uword { VarTerm $1 }
+  | lword LPAREN RPAREN { ComplexTerm($1, []) }
+  | lword LPAREN term_list RPAREN { ComplexTerm($1, $3) }
 
-
-
-
-
-
-
-lword_list:
-  | lword                        { [ $1 ] }
-  | lword COMMA lword_list       { $1 :: $3 }
+term_list:
+  | term  { [$1] }
+  | term COMMA term_list { $1::$3 }
 
 lword:
-  | LWORD { ConstWord $1 }
+  | LWORD { Const $1 }
 uword: 
-  | UWORD { Varword $1 }
+  | UWORD { Var $1 }
