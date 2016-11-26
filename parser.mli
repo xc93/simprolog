@@ -1,7 +1,6 @@
 type token =
   | LWORD of (string)
   | UWORD of (string)
-  | EOF
   | COMMA
   | CDASH
   | QDASH
@@ -10,4 +9,4 @@ type token =
   | DOT
 
 val main :
-  (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Ast.command
+  (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Main.command

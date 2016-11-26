@@ -1,14 +1,13 @@
 %{
-  open Ast;;
+  (* Arbitraty OCaml Code here. *)
 %}
 
 %token <string> LWORD
 %token <string> UWORD
-
-%token EOF COMMA CDASH QDASH LPAREN RPAREN DOT
+%token COMMA CDASH QDASH LPAREN RPAREN DOT
 
 %start main
-%type <Ast.command> main
+%type <Main.command> main
 %%
 
 main:

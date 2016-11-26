@@ -1,7 +1,6 @@
 type token =
   | LWORD of (string)
   | UWORD of (string)
-  | EOF
   | COMMA
   | CDASH
   | QDASH
@@ -12,10 +11,9 @@ type token =
 open Parsing;;
 let _ = parse_error;;
 # 2 "parser.mly"
-  open Ast;;
-# 17 "parser.ml"
+  (* Arbitraty OCaml Code here. *)
+# 16 "parser.ml"
 let yytransl_const = [|
-    0 (* EOF *);
   259 (* COMMA *);
   260 (* CDASH *);
   261 (* QDASH *);
@@ -72,7 +70,6 @@ let yycheck = "\001\001\
 \007\001\255\255\008\001"
 
 let yynames_const = "\
-  EOF\000\
   COMMA\000\
   CDASH\000\
   QDASH\000\
@@ -91,96 +88,96 @@ let yyact = [|
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'rule) in
     Obj.repr(
-# 16 "parser.mly"
+# 15 "parser.mly"
     ( _1 )
-# 97 "parser.ml"
-               : Ast.command))
+# 94 "parser.ml"
+               : Main.command))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'inquery) in
     Obj.repr(
-# 18 "parser.mly"
+# 17 "parser.mly"
     ( _1 )
-# 104 "parser.ml"
-               : Ast.command))
+# 101 "parser.ml"
+               : Main.command))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'term) in
     Obj.repr(
-# 21 "parser.mly"
+# 20 "parser.mly"
           ( Rule(_1, []) )
-# 111 "parser.ml"
+# 108 "parser.ml"
                : 'rule))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 2 : 'term) in
     let _3 = (Parsing.peek_val __caml_parser_env 0 : 'term_list) in
     Obj.repr(
-# 22 "parser.mly"
+# 21 "parser.mly"
                          ( Rule(_1, _3) )
-# 119 "parser.ml"
+# 116 "parser.ml"
                : 'rule))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'term) in
     Obj.repr(
-# 25 "parser.mly"
+# 24 "parser.mly"
                ( Inquery _2 )
-# 126 "parser.ml"
+# 123 "parser.ml"
                : 'inquery))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'lword) in
     Obj.repr(
-# 28 "parser.mly"
+# 27 "parser.mly"
           ( ConstTerm _1 )
-# 133 "parser.ml"
+# 130 "parser.ml"
                : 'term))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'uword) in
     Obj.repr(
-# 29 "parser.mly"
+# 28 "parser.mly"
           ( VarTerm _1 )
-# 140 "parser.ml"
+# 137 "parser.ml"
                : 'term))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 2 : 'lword) in
     Obj.repr(
-# 30 "parser.mly"
+# 29 "parser.mly"
                         ( ComplexTerm(_1, []) )
-# 147 "parser.ml"
+# 144 "parser.ml"
                : 'term))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 3 : 'lword) in
     let _3 = (Parsing.peek_val __caml_parser_env 1 : 'term_list) in
     Obj.repr(
-# 31 "parser.mly"
+# 30 "parser.mly"
                                   ( ComplexTerm(_1, _3) )
-# 155 "parser.ml"
+# 152 "parser.ml"
                : 'term))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'term) in
     Obj.repr(
-# 34 "parser.mly"
+# 33 "parser.mly"
           ( [_1] )
-# 162 "parser.ml"
+# 159 "parser.ml"
                : 'term_list))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 2 : 'term) in
     let _3 = (Parsing.peek_val __caml_parser_env 0 : 'term_list) in
     Obj.repr(
-# 35 "parser.mly"
+# 34 "parser.mly"
                          ( _1::_3 )
-# 170 "parser.ml"
+# 167 "parser.ml"
                : 'term_list))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : string) in
     Obj.repr(
-# 38 "parser.mly"
+# 37 "parser.mly"
           ( Const _1 )
-# 177 "parser.ml"
+# 174 "parser.ml"
                : 'lword))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : string) in
     Obj.repr(
-# 40 "parser.mly"
+# 39 "parser.mly"
           ( Var _1 )
-# 184 "parser.ml"
+# 181 "parser.ml"
                : 'uword))
 (* Entry main *)
 ; (fun __caml_parser_env -> raise (Parsing.YYexit (Parsing.peek_val __caml_parser_env 0)))
@@ -203,4 +200,4 @@ let yytables =
     Parsing.names_const=yynames_const;
     Parsing.names_block=yynames_block }
 let main (lexfun : Lexing.lexbuf -> token) (lexbuf : Lexing.lexbuf) =
-   (Parsing.yyparse yytables 1 lexfun lexbuf : Ast.command)
+   (Parsing.yyparse yytables 1 lexfun lexbuf : Main.command)

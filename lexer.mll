@@ -1,11 +1,6 @@
-(*
- * This file defines regular expressions for lexing tokens in
- * SimProlog. For a complete definition of tokens, please refer
- * to "token.ml". 
- *)
-
 {
-  open Token;;
+  open Parser		(* The type token is defined in parser.mli *)
+  exception Eof
 }
 
 let digit       = ['0'-'9']
@@ -18,19 +13,17 @@ let space       = [' ' '\t' '\n']
 
 rule token = parse
   | space         { token lexbuf } (* skip over whitespace *)
-  | eof           { EOF }
   | ":-"          { CDASH }
   | "?-"          { QDASH }
   | '('           { LPAREN }
   | ')'           { RPAREN }
-  | '['		  { LBRAC }
-  | ']'	          { RBRAC }
   | '.'           { DOT }
   | ','           { COMMA }
-  | ';'	          { SEMICOLON }
   | lword as w    { LWORD w }
-  | uword as w    { UWORD w } 
+  | uword as w    { UWORD w }
+  | eof		  { raise Eof }
 
+(*
 {
 let lextest s = token(Lexing.from_string s)
 ;;
@@ -61,3 +54,4 @@ let get_all_tokens_options s =
   g ()
 ;;
 }
+*)
