@@ -18,6 +18,15 @@ let print_var (Var s) = print_string s
 
 (* printy-print function for term *)
 
+(* print a list *)
+let rec print_list lst print_ele (separator : string) =
+  match lst
+  with  [] -> print_string ""
+     |  [x] -> print_ele x
+     |  x::xs -> (print_ele x; print_string separator; print_list xs print_ele separator)
+;;
+
+
 let rec pp t = match t with
   ConstTerm (Const s) -> print_string s
 | VarTerm (Var v) -> print_string v
@@ -28,15 +37,16 @@ and pp_lst ts = match ts with
 | t::ts -> pp t; print_string ", "; pp_lst ts
 
 let print_term = pp;;
+let print_term_list ts = print_list ts print_term ", "
 
-(* print a list *)
-let rec print_list lst print_ele (separator : string) =
-  match lst
-  with  [] -> print_string ""
-     |  [x] -> print_ele x
-     |  x::xs -> (print_ele x; print_string separator; print_list xs print_ele separator)
+
+(* print a command *)
+
+let print_command comm = 
+  match comm
+  with  Rule(t, ts) -> print_term t; print_string ":-"; print_term_list ts
+     |  Inquery t -> print_term t
 ;;
-
 
 (* Unification *)
 
@@ -69,10 +79,26 @@ let rec lift_subst subst t =
 let lift_subst_term subst (t:term) = lift_subst subst t;;
 let lift_subst_term_list subst (ts:term list) = map (lift_subst_term subst) ts;;
 
-let subst_compose (s1:substitution) (s2:substitution) : substitution = s1 @ s2
+
 
 let print_subst (s:substitution) = print_string "{"; print_list s (fun (v, t) -> print_var v; print_string " -> "; print_term t) ","; print_string "}"
-  
+
+let rec subst_collapse (s:substitution) =
+  match s
+  with  [] -> []
+     |  (v, t) :: ss -> let ss_collapse = subst_collapse ss in
+        (v, lift_subst_term ss_collapse t) :: ss_collapse
+;;
+
+let subst_compose (s2:substitution) (s1:substitution) : substitution =
+    (List.filter (fun (tv,_) -> not(List.mem_assoc tv s1)) s2) @ 
+    (List.map (fun (tv,residue) -> (tv, lift_subst_term s2 residue)) s1)
+
+let rec pick_subst (s:substitution) (vars: variable list) : substitution =
+  match s
+  with  [] -> []
+     |  (v, t) :: rem -> if mem v vars then (v, t) :: pick_subst rem vars
+                         else pick_subst rem vars
   
 
 (* Unify *)
@@ -94,7 +120,7 @@ let rec unify eqlst =
 					   | (ConstTerm (Const s), VarTerm (Var v)) -> unify ((VarTerm (Var v), ConstTerm (Const s)) :: eqs)
 					   | (VarTerm (Var v), t) -> if (occur v t) then None
 					   		else let eqs' = List.map (fun (t1, t2) -> (lift_subst [(Var v, t)] t1, lift_subst [(Var v, t)] t2)) eqs
-					   		in (match (unify eqs') with None -> None | Some phi -> Some ((Var v, lift_subst phi t) :: phi))
+					   		in (match (unify eqs') with None -> None | Some phi -> Some (subst_compose [(Var v, lift_subst phi t)] phi))
 					   | _ -> None
 			)
 ;;
@@ -103,6 +129,14 @@ let rec unify eqlst =
 (* Backtracking *)
 
 type rule = term * term list
+
+let print_rule (r:rule) = let (t,ts) = r in
+  print_term t; print_string " :- "; print_term_list ts
+
+(* print a rule list *)
+let print_rules (rs: rule list) =
+  print_list rs print_rule "\n"
+;;
 
 (* generating fresh variables *)
 
@@ -147,6 +181,7 @@ let rec solve qs rs rs_togo s sols k =
                  |  Some sigma -> solve (lift_subst_term_list sigma (remq @ (snd fresh_r))) rs rs (subst_compose sigma s) sols (fun nsols -> solve qs rs remr s nsols k)))
 
 let print_sol (sols:substitution list) = print_list sols print_subst "\n";;
+let print_sols = print_sol;;
 
 (* test1 *)
 (* 

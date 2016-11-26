@@ -1,5 +1,5 @@
 %{
-  (* Arbitraty OCaml Code here. *)
+  open Main
 %}
 
 %token <string> LWORD

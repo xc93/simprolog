@@ -11,7 +11,7 @@ type token =
 open Parsing;;
 let _ = parse_error;;
 # 2 "parser.mly"
-  (* Arbitraty OCaml Code here. *)
+  open Main
 # 16 "parser.ml"
 let yytransl_const = [|
   259 (* COMMA *);
