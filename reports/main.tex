@@ -1,0 +1,298 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{minted}
+
+\title{CS421 Unit Project: Prolog in OCaml}
+\author{Haoyu Wang  \and Xiaohong Chen}
+
+\begin{document}
+\maketitle
+
+\section{Overview}
+
+This project fulfills our extra-credit workload in CS421 -- Programming Languages and Compilers. Among all other projects listed in Elsa's website, we found this one the most interesting and meaningful.
+
+We aim for a Prolog implementation in OCaml. The Prolog that we implemented in this project is a fragment of the real Prolog language, so we refer it to SimProlog. SimProlog is able to reason with facts and rules about (potentially nested) Prolog terms, but do not support data reasoning (such as integers) and data structures (such as lists). 
+
+\section{Implementation}
+
+The SimProlog implementation contains four important aspects.
+\begin{enumerate}
+	\item A lexer ({\tt lexer.mll})
+	\item A parser ({\tt parser.mly})
+	\item Main functionality of SimProlog ({\tt main.ml}) including
+	\begin{itemize}
+		\item Abstract data structures
+		\item Unification and substitution
+		\item Backtracking
+	\end{itemize}
+	\item An interactive interface ({\tt simp.ml})
+\end{enumerate}
+
+We fully covered all aspects that were proposed in our original proposal (which we enclosed in Appendix for reference). In addition, we provide an interactive interface for users to teach SimProlog engine facts and rules and ask her questions.
+
+\section{Tests}
+
+\subsection{Ordering reasoning}
+
+\subsection{Piano arithmetic reasoning}
+
+\section*{Appendix}
+\subsection*{Original proposal}
+\begin{quote}
+	\tt
+	We propose to implement a simple version of Prolog
+	in OCaml. A program of such a simple version of Prolog
+	language that we concern in this unit project, as SimProlog 
+	we call it , consists of the following components.
+	
+	(1) A number of *declarations* that declare predicates.\\
+	(2) A number of *base clauses* that state fact.\\
+	(3) One inquiry where free variables are allowed to show up.
+	
+	A sample of such a SimProlog language looks the follows.
+	\begin{center}
+		----------- SimProlog Program Sample Begins -----------
+	\end{center}
+	
+	\% This is a simple SimProlog program.\\
+	\% Everything following '\%' is a comment.\\
+	
+	mother(X, Y) :- parent(X, Y), femail(X)\\
+	parent(john, bill)\\
+	parent(jane, bill)\\
+	femail(jane)\\
+	| ?- mother(M, bill)
+\begin{center}
+		----------- SimProlog Program Sample Ends -----------
+\end{center}
+	
+	Our unit project will consist of five basic building
+	blocks, which are divided into either syntax category or
+	semantics category. Each of us will be responsible for
+	one category. The five basic building blocks are (where [xc] stands for Xiaohong and [wh] stands for Haoyu):\\
+	(1)[xc] A grammar for SimProlog language.\\
+	(2)[xc] A lexer that consumes streams of characters and
+	recognizes tokens.\\
+	(3)[xc] A parser that consumes streams of tokens and build
+	ASTs.\\
+	(4)[wh] An evaluator that takes ASTs, understands predicate
+	declarations and facts, and answers the inquiry. This may
+	include: a unification process and a backtracking mechanism.
+\end{quote}
+
+
+\subsection*{Code}
+\paragraph{File \tt lexer.mll}
+\begin{minted}{ocaml}
+{ open Parser  (* The type token is defined in parser.mli *)
+  exception Eof
+}
+
+let digit       = ['0'-'9']
+let lcase       = ['a'-'z']
+let ucase       = ['A'-'Z']
+let wchar       = digit | lcase | ucase | '_'
+let lword       = lcase wchar*
+let uword       = ucase wchar*
+let space       = [' ' '\t' '\n']
+
+rule token = parse
+| space         { token lexbuf } (* skip over whitespace *)
+| ":-"          { CDASH }
+| "?-"          { QDASH }
+| '('           { LPAREN }
+| ')'           { RPAREN }
+| '.'           { DOT }
+| ','           { COMMA }
+| lword as w    { LWORD w }
+| uword as w    { UWORD w }
+| eof		  { raise Eof }
+\end{minted}
+
+\paragraph{File \tt parser.mly}
+\begin{minted}{ocaml}
+%{ open Main %}
+
+%token <string> LWORD
+%token <string> UWORD
+%token COMMA CDASH QDASH LPAREN RPAREN DOT
+
+%start main
+%type <Main.command> main
+%%
+
+main:
+  | rule DOT                         { $1 }
+  | inquery DOT                      { $1 }
+
+rule:
+  | term                             { Rule($1, []) }
+  | term CDASH term_list             { Rule($1, $3) }
+
+inquery:
+  | QDASH term                       { Inquery $2 }
+
+term:
+  | lword                            { ConstTerm $1 }
+  | uword                            { VarTerm $1 }
+  | lword LPAREN RPAREN              { ComplexTerm($1, []) }
+  | lword LPAREN term_list RPAREN    { ComplexTerm($1, $3) }
+
+term_list:
+  | term                             { [$1] }
+  | term COMMA term_list             { $1::$3 }
+
+lword:
+  | LWORD                            { Const $1 }
+
+uword: 
+  | UWORD                            { Var $1 }
+\end{minted}
+
+\paragraph{File \tt main.ml}
+\begin{minted}{ocaml}
+open Pervasives
+open List
+
+(* Abstract Data Structures *)
+type constant = Const of string                  
+type variable = Var of string                 
+type term = ConstTerm of constant 
+          | VarTerm of variable 
+          | ComplexTerm of constant * term list
+type rule = term * term list
+type command = Rule of term * term list | Inquery of term
+
+(* Unification and Substitution *)
+type substitution = (variable * term) list
+let identity_subst : substitution = []
+
+(* helper functions *)
+let rec occur (varname: string) (t: term) : bool =
+  match t with
+| ConstTerm _ -> false
+| VarTerm (Var s) -> varname = s
+| ComplexTerm (Const s, ts) -> exists (occur varname) ts
+;;
+
+let rec subst_fun (subst: substitution) (varname: string) = 
+  match subst with 
+| [] -> 
+    VarTerm (Var varname)
+| (Var varname', t) :: substs -> 
+    if varname' = varname then t else subst_fun substs varname
+;;
+
+let rec lift_subst_term (subst: substitution) (t: term) = 
+  match t with 
+| ConstTerm (Const s) -> t
+| VarTerm (Var varname) -> subst_fun subst varname
+| ComplexTerm (Const s, ts) -> 
+    ComplexTerm (Const s, map (lift_subst_term subst) ts)
+;;
+
+let lift_subst_term_list subst (ts:term list) = map (lift_subst_term subst) ts;;
+
+(* Cited from MPs and MLs. *)
+let subst_compose (s2: substitution) (s1: substitution) : substitution =
+  (filter (fun (tv,_) -> not(mem_assoc tv s1)) s2) @ 
+  (map (fun (tv,residue) -> (tv, lift_subst_term s2 residue)) s1)
+
+(* Pick the subset of substitution @s that contains variables in @vars. *)
+let rec pick_subst (s: substitution) (vars: variable list) : substitution =
+  match s with
+| [] -> []
+| (v, t) :: rem -> 
+    if mem v vars then (v, t) :: pick_subst rem vars
+                  else pick_subst rem vars
+let rec unify (eqlst: (term * term) list) =
+  let rec addNewEqs ls1 ls2 acc =
+    match ls1, ls2 with
+  | [], [] -> Some acc
+  | (t1 :: tl1), (t2 :: tl2) -> addNewEqs tl1 tl2 ((t1, t2) :: acc)
+  | _ -> None
+  in match eqlst with
+   | [] -> Some([])
+   | (s,t) :: eqs -> if s = t then unify eqs
+  else (match (s, t) with 
+     | (ComplexTerm ((Const c1), t1), ComplexTerm ((Const c2), t2)) ->
+          if c1 = c2 then (match (addNewEqs t1 t2 eqs) with 
+                         | None -> None 
+                         | Some l -> unify l)
+          else None
+     | (ComplexTerm (c, t), VarTerm (Var v)) -> 
+          unify ((VarTerm (Var v), ComplexTerm (c, t)) :: eqs)
+     | (ConstTerm (Const s), VarTerm (Var v)) -> 
+          unify ((VarTerm (Var v), ConstTerm (Const s)) :: eqs)
+     | (VarTerm (Var v), t) -> if (occur v t) then None
+          else let eqs' = 
+            map (fun (t1, t2) -> 
+                  (lift_subst_term [(Var v, t)] t1, lift_subst_term [(Var v, t)] t2))
+                eqs
+               in (match (unify eqs') with 
+                   | None -> None 
+                   | Some phi -> 
+                       Some (subst_compose [(Var v, lift_subst_term phi t)] phi))
+      | _ -> None)
+;;
+
+
+(* Backtracking *)
+
+(* generating fresh variables and rules *)
+
+let (fresh, reset) = 
+  let nxt = ref 0 in
+  let f () = (let r = Var("$" ^ string_of_int !nxt) in let _ = nxt := !nxt + 1 in r) in
+  let r () = nxt := 0 in
+  (f, r)
+
+(* de-duplicate a list *)
+let rec ddup l =
+  match l with
+| [] -> []
+|  x::xs -> let dxs = ddup xs in
+   if mem x dxs then dxs else x::dxs
+
+let rec collect_variables_in_term (t: term) : variable list=
+  match t
+  with  ConstTerm _ -> []
+     |  VarTerm v -> [v]
+     |  ComplexTerm(c, ts) -> collect_variables_in_term_list (ts: term list)
+and collect_variables_in_term_list (ts: term list) : variable list =
+  match ts
+  with  [] -> []
+     |  t::ts -> ddup ((collect_variables_in_term t) @
+                       (collect_variables_in_term_list ts))
+
+let rec fresh_rule (t,ts) : rule =
+  let bound_variables = collect_variables_in_term_list (t::ts) in
+  let subst = map (fun (v:variable) -> (v, VarTerm(fresh()))) 
+                  bound_variables in
+  (lift_subst_term subst t, lift_subst_term_list subst ts)
+
+let rec solve (qs: term list)
+              (rs: rule list) 
+              (rs_togo: rule list) 
+              (s: substitution) 
+              (sols: substitution list) 
+              (k: substitution list -> 'a) =
+  match qs with
+| [] -> k(s::sols)
+| q1::remq -> (match rs_togo with
+  | [] -> k(sols)
+  | r1::remr -> let fresh_r = fresh_rule r1 in
+                (match unify [(q1, fst fresh_r)] with
+    | None -> solve qs rs remr s sols k
+    | Some sigma -> solve (lift_subst_term_list sigma (remq @ (snd fresh_r)))
+                          rs
+                          rs 
+                          (subst_compose sigma s) 
+                          sols 
+                          (fun nsols -> solve qs rs remr s nsols k)))
+\end{minted}
+
+\end{document}

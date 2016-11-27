@@ -1,5 +1,4 @@
-{
-  open Parser		(* The type token is defined in parser.mli *)
+{ open Parser  (* The type token is defined in parser.mli *)
   exception Eof
 }
 
@@ -19,39 +18,8 @@ rule token = parse
   | ')'           { RPAREN }
   | '.'           { DOT }
   | ','           { COMMA }
+  | "clear!"      { CLEAR }
+  | "show!"       { SHOW }
   | lword as w    { LWORD w }
   | uword as w    { UWORD w }
   | eof		  { raise Eof }
-
-(*
-{
-let lextest s = token(Lexing.from_string s)
-;;
-
-let get_all_tokens s =
-  let b = Lexing.from_string (s^"\n") in
-  let rec g () =
-    match token b
-    with  EOF -> []
-       |  t   -> t :: g()
-  in g ()
-;;
-
-let try_get_all_tokens s =
-  try (Some(get_all_tokens s), true)
-  with Failure "unmatched open comment" -> (None, true)
-     | Failure "unmatched closed comment" -> (None, false)
-;;
-
-let get_all_tokens_options s =
-  let b = Lexing.from_string (s^"\n") in
-  let rec g () =
-    match (try Some (token b) with _ -> None) with
-      Some EOF -> []
-    | None -> [None]
-    | t -> t :: g()
-  in
-  g ()
-;;
-}
-*)
