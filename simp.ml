@@ -14,12 +14,10 @@ let _ =
   (****************************************************)
   try
   let lexbuf = Lexing.from_channel stdin in
-  (* Add here *)
-  (if is_interactive
-    then (print_string ">>"; flush stdout));
-  (*****************************************************)
   while true do
     let result = Parser.main Lexer.token lexbuf in
+   (if is_interactive
+    then (print_string ">>"; flush stdout));
    (match result
     with  Rule(t,ts) -> let r = (t,ts) in
             rules := r :: !rules;
