@@ -192,6 +192,14 @@ let print_rules (rs: rule list) =
   print_list rs print_rule "\n"
 ;;
 
+(* De-duplicate substitution list *)
+let rec dd_subst (sols:substitution list) = 
+  match sols
+  with [] -> []
+     | subst :: [] -> subst :: []
+     | subst1 :: subst2 :: ls -> if List.mem (subst2 :: ls) subst1 then dd_subst (subst2 :: ls) else subst1 :: (dd_subst (subst2 :: ls))
+;;
+
   
 
 
