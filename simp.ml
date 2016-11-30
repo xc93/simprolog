@@ -32,6 +32,7 @@ let _ =
                              identity_subst 
                              [] 
                              (fun sols -> sols) in
+	    let sols = dd_subst sols in
             print_string "I found ";
             print_int (length sols);
             print_string " solutions.\n";

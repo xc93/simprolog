@@ -1,0 +1,25 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{o}{\PYGZob{}} \PYG{k}{open} \PYG{n+nc}{Parser}  \PYG{c}{(* The type token is defined in parser.mli *)}
+  \PYG{k}{exception} \PYG{n+nc}{Eof}
+\PYG{o}{\PYGZcb{}}
+
+\PYG{k}{let} \PYG{n}{digit}       \PYG{o}{=} \PYG{o}{[}\PYG{l+s+sc}{\PYGZsq{}0\PYGZsq{}}\PYG{o}{\PYGZhy{}}\PYG{l+s+sc}{\PYGZsq{}9\PYGZsq{}}\PYG{o}{]}
+\PYG{k}{let} \PYG{n}{lcase}       \PYG{o}{=} \PYG{o}{[}\PYG{l+s+sc}{\PYGZsq{}a\PYGZsq{}}\PYG{o}{\PYGZhy{}}\PYG{l+s+sc}{\PYGZsq{}z\PYGZsq{}}\PYG{o}{]}
+\PYG{k}{let} \PYG{n}{ucase}       \PYG{o}{=} \PYG{o}{[}\PYG{l+s+sc}{\PYGZsq{}A\PYGZsq{}}\PYG{o}{\PYGZhy{}}\PYG{l+s+sc}{\PYGZsq{}Z\PYGZsq{}}\PYG{o}{]}
+\PYG{k}{let} \PYG{n}{wchar}       \PYG{o}{=} \PYG{n}{digit} \PYG{o}{|} \PYG{n}{lcase} \PYG{o}{|} \PYG{n}{ucase} \PYG{o}{|} \PYG{l+s+sc}{\PYGZsq{}\PYGZus{}\PYGZsq{}}
+\PYG{k}{let} \PYG{n}{lword}       \PYG{o}{=} \PYG{n}{lcase} \PYG{n}{wchar}\PYG{o}{*}
+\PYG{k}{let} \PYG{n}{uword}       \PYG{o}{=} \PYG{n}{ucase} \PYG{n}{wchar}\PYG{o}{*}
+\PYG{k}{let} \PYG{n}{space}       \PYG{o}{=} \PYG{o}{[}\PYG{l+s+sc}{\PYGZsq{} \PYGZsq{}} \PYG{l+s+sc}{\PYGZsq{}\PYGZbs{}t\PYGZsq{}} \PYG{l+s+sc}{\PYGZsq{}\PYGZbs{}n\PYGZsq{}}\PYG{o}{]}
+
+\PYG{n}{rule} \PYG{n}{token} \PYG{o}{=} \PYG{n}{parse}
+\PYG{o}{|} \PYG{n}{space}         \PYG{o}{\PYGZob{}} \PYG{n}{token} \PYG{n}{lexbuf} \PYG{o}{\PYGZcb{}} \PYG{c}{(* skip over whitespace *)}
+\PYG{o}{|} \PYG{l+s+s2}{\PYGZdq{}:\PYGZhy{}\PYGZdq{}}          \PYG{o}{\PYGZob{}} \PYG{n+nc}{CDASH} \PYG{o}{\PYGZcb{}}
+\PYG{o}{|} \PYG{l+s+s2}{\PYGZdq{}?\PYGZhy{}\PYGZdq{}}          \PYG{o}{\PYGZob{}} \PYG{n+nc}{QDASH} \PYG{o}{\PYGZcb{}}
+\PYG{o}{|} \PYG{l+s+sc}{\PYGZsq{}(\PYGZsq{}}           \PYG{o}{\PYGZob{}} \PYG{n+nc}{LPAREN} \PYG{o}{\PYGZcb{}}
+\PYG{o}{|} \PYG{l+s+sc}{\PYGZsq{})\PYGZsq{}}           \PYG{o}{\PYGZob{}} \PYG{n+nc}{RPAREN} \PYG{o}{\PYGZcb{}}
+\PYG{o}{|} \PYG{l+s+sc}{\PYGZsq{}.\PYGZsq{}}           \PYG{o}{\PYGZob{}} \PYG{n+nc}{DOT} \PYG{o}{\PYGZcb{}}
+\PYG{o}{|} \PYG{l+s+sc}{\PYGZsq{},\PYGZsq{}}           \PYG{o}{\PYGZob{}} \PYG{n+nc}{COMMA} \PYG{o}{\PYGZcb{}}
+\PYG{o}{|} \PYG{n}{lword} \PYG{k}{as} \PYG{n}{w}    \PYG{o}{\PYGZob{}} \PYG{n+nc}{LWORD} \PYG{n}{w} \PYG{o}{\PYGZcb{}}
+\PYG{o}{|} \PYG{n}{uword} \PYG{k}{as} \PYG{n}{w}    \PYG{o}{\PYGZob{}} \PYG{n+nc}{UWORD} \PYG{n}{w} \PYG{o}{\PYGZcb{}}
+\PYG{o}{|} \PYG{n}{eof}		  \PYG{o}{\PYGZob{}} \PYG{k}{raise} \PYG{n+nc}{Eof} \PYG{o}{\PYGZcb{}}
+\end{Verbatim}

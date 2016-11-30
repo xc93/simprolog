@@ -3,6 +3,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
 \usepackage{minted}
+\usepackage{listings}
+
 
 \title{CS421 Unit Project: Prolog in OCaml}
 \author{Haoyu Wang  \and Xiaohong Chen}
@@ -33,11 +35,128 @@ The SimProlog implementation contains four important aspects.
 
 We fully covered all aspects that were proposed in our original proposal (which we enclosed in Appendix for reference). In addition, we provide an interactive interface for users to teach SimProlog engine facts and rules and ask her questions.
 
-\section{Tests}
+\subsection{Backtracking}
+We find it necessary to provide more explanation in our backtracking algorithm that uses unification and finds all solutions for a given inquiry.
+
+\begin{minted}[linenos]{ocaml}
+let rec solve (qs: term list)
+              (rs: rule list) 
+              (rs_togo: rule list) 
+              (s: substitution) 
+              (sols: substitution list) 
+              (k: substitution list -> 'a) =
+  match qs with
+| [] -> k(s::sols)
+| q1::remq -> (match rs_togo with
+|            | [] -> k(sols)
+             | r1::remr -> 
+               let fresh_r = fresh_rule r1 in
+                (match unify [(q1, fst fresh_r)] with
+               | None -> solve qs rs remr s sols k
+               | Some sigma -> 
+                 solve (lift_subst_term_list sigma (remq @ (snd fresh_r)))
+                        rs
+                        rs 
+                       (subst_compose sigma s) 
+                        sols 
+                       (fun sols' -> solve qs rs remr s sols' k)))
+\end{minted}
+
+We enclose our words as in-line comments below.
+\begin{description}
+	\item[line 3] In the effort to solve the first question in {\tt qs}, we try rules that we have not tried yet in {\tt rs\_togo}, a subset of all rules. 
+	\item[line 4] We record the current substitution, and hope it would become a new solution.
+	\item[line 5] All solutions that we have found so far.
+	\item[line 7] Match question list.
+	\item[line 8] If no more question to solve, then pass the current solution together with the ones that we have found {\tt s::sols} to the continuation {\tt k}.
+	\item[line 10] If there is some question {\tt q1} to solve but no rule to apply (in {\tt rs\_togo}), then we fail to find a new solution, and can only pass {\tt sols} to the continuation.
+	\item[line 14] If the first rule cannot resolve the first question, we try the rest of rules by calling {\tt solve} recursively over the same problem but with {\tt rs\_togo} replaced by {\tt remr}.
+	\item[line 16] Otherwise we resolve the first question and replace it by (if there is any) newly generated questions to the question list, before we recursively call {\tt solve} with a new continuation {\tt k'} that whenever it receives the solution {\tt sol'} for the sub-problem, calls {\tt solve} to restore the previous state, pretty much the same as line 14 except that {\tt sols} are updated with {\tt sols'}.
+\end{description}
+\section{Examples}
 
 \subsection{Ordering reasoning}
+A finite lattice (see below for an example) can be represented by a number of facts (of the form $a < b$) and the reflexivity and transitivity rules.
 
-\subsection{Piano arithmetic reasoning}
+{\tt \begin{lstlisting}[xleftmargin=.2\textwidth]
+a < b < c < d < e
+    |
+    b < x < y < z < w
+            |
+            y < m < n < p < q
+\end{lstlisting}}
+
+For all twelve $<$'s we define twelve rules (facts) as follows.
+
+\begin{minted}{prolog}
+true .
+bleq(a, b) .
+bleq(b, c) .
+bleq(c, d) .
+bleq(d, e) .
+bleq(b, x) .
+bleq(x, y) .
+bleq(y, z) .
+bleq(z, w) .
+bleq(y, m) .
+bleq(m, n) .
+bleq(n, p) .
+bleq(p, q) .
+\end{minted}
+
+And two additional (conditional) rules for reflexivity and transitivity.
+
+\begin{minted}{prolog}
+leq(X, X) :- true.
+leq(X, Y) :- bleq(X, Z) , leq(Z, Y) .
+\end{minted}
+
+Then we can ask SimProlog
+
+\begin{minted}{prolog}
+?- leq(x, What) .
+\end{minted}
+
+It shall answer
+
+\begin{minted}{prolog}
+"I found 8 solutions."
+{What -> x}
+{What -> y}
+{What -> z}
+{What -> w}
+{What -> m}
+{What -> n}
+{What -> p}
+{What -> q}
+\end{minted}
+
+
+\subsection{Peano arithmetic reasoning}
+
+SimProlog is able to reason about Peano arithmetic system, including a successor function and a predicate {\tt addeq(x,y,z)} which holds iff $x + y = z$.
+
+\begin{minted}{prolog}
+true .
+addeq(X, zero, X) :- true .
+addeq(X, s(Y), s(Z)) :- addeq(X, Y, Z) .
+\end{minted}
+
+One important thing when one using SimProlog is to make sure his/her rules guarantee termination. SimProlog does not check termination, and it falls into the pitfall of infinite loops if rules are badly designed.
+
+\begin{minted}{prolog}
+?- addeq(s(zero), s(s(zero)), What) .
+"OK. I am thinking ..."
+"I found 1 solution."
+{What -> s(s(s(zero)))}
+
+?- addeq(What, s(zero), s(s(s(zero)))) .
+"OK. I am thinking ..."
+"I found 1 solution."
+{What -> s(s(zero))}
+\end{minted}
+
+Notice how the second argument {\tt s(zero)} helps prevent SimProlog from non-termination. 
 
 \section*{Appendix}
 \subsection*{Original proposal}

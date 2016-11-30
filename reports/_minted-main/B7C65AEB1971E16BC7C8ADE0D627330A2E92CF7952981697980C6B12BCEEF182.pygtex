@@ -1,0 +1,23 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{let} \PYG{k}{rec} \PYG{n}{solve} \PYG{o}{(}\PYG{n}{qs}\PYG{o}{:} \PYG{n}{term} \PYG{k+kt}{list}\PYG{o}{)}
+              \PYG{o}{(}\PYG{n}{rs}\PYG{o}{:} \PYG{n}{rule} \PYG{k+kt}{list}\PYG{o}{)}
+              \PYG{o}{(}\PYG{n}{rs\PYGZus{}togo}\PYG{o}{:} \PYG{n}{rule} \PYG{k+kt}{list}\PYG{o}{)}
+              \PYG{o}{(}\PYG{n}{s}\PYG{o}{:} \PYG{n}{substitution}\PYG{o}{)}
+              \PYG{o}{(}\PYG{n}{sols}\PYG{o}{:} \PYG{n}{substitution} \PYG{k+kt}{list}\PYG{o}{)}
+              \PYG{o}{(}\PYG{n}{k}\PYG{o}{:} \PYG{n}{substitution} \PYG{k+kt}{list} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{k}{\PYGZsq{}}\PYG{n}{a}\PYG{o}{)} \PYG{o}{=}
+  \PYG{k}{match} \PYG{n}{qs} \PYG{k}{with}
+\PYG{o}{|} \PYG{n+nb+bp}{[]} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{k}\PYG{o}{(}\PYG{n}{s}\PYG{o}{::}\PYG{n}{sols}\PYG{o}{)}
+\PYG{o}{|} \PYG{n}{q1}\PYG{o}{::}\PYG{n}{remq} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{o}{(}\PYG{k}{match} \PYG{n}{rs\PYGZus{}togo} \PYG{k}{with}
+\PYG{o}{|}            \PYG{o}{|} \PYG{n+nb+bp}{[]} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{k}\PYG{o}{(}\PYG{n}{sols}\PYG{o}{)}
+             \PYG{o}{|} \PYG{n}{r1}\PYG{o}{::}\PYG{n}{remr} \PYG{o}{\PYGZhy{}\PYGZgt{}}
+               \PYG{k}{let} \PYG{n}{fresh\PYGZus{}r} \PYG{o}{=} \PYG{n}{fresh\PYGZus{}rule} \PYG{n}{r1} \PYG{k}{in}
+                \PYG{o}{(}\PYG{k}{match} \PYG{n}{unify} \PYG{o}{[(}\PYG{n}{q1}\PYG{o}{,} \PYG{n}{fst} \PYG{n}{fresh\PYGZus{}r}\PYG{o}{)]} \PYG{k}{with}
+               \PYG{o}{|} \PYG{n+nc}{None} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{solve} \PYG{n}{qs} \PYG{n}{rs} \PYG{n}{remr} \PYG{n}{s} \PYG{n}{sols} \PYG{n}{k}
+               \PYG{o}{|} \PYG{n+nc}{Some} \PYG{n}{sigma} \PYG{o}{\PYGZhy{}\PYGZgt{}}
+                 \PYG{n}{solve} \PYG{o}{(}\PYG{n}{lift\PYGZus{}subst\PYGZus{}term\PYGZus{}list} \PYG{n}{sigma} \PYG{o}{(}\PYG{n}{remq} \PYG{o}{@} \PYG{o}{(}\PYG{n}{snd} \PYG{n}{fresh\PYGZus{}r}\PYG{o}{)))}
+                        \PYG{n}{rs}
+                        \PYG{n}{rs}
+                       \PYG{o}{(}\PYG{n}{subst\PYGZus{}compose} \PYG{n}{sigma} \PYG{n}{s}\PYG{o}{)}
+                        \PYG{n}{sols}
+                       \PYG{o}{(}\PYG{k}{fun} \PYG{n}{sols\PYGZsq{}} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{solve} \PYG{n}{qs} \PYG{n}{rs} \PYG{n}{remr} \PYG{n}{s} \PYG{n}{sols\PYGZsq{}} \PYG{n}{k}\PYG{o}{)))}
+\end{Verbatim}

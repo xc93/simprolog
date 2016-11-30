@@ -1,0 +1,141 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{open} \PYG{n+nc}{Pervasives}
+\PYG{k}{open} \PYG{n+nc}{List}
+
+\PYG{c}{(* Abstract Data Structures *)}
+\PYG{k}{type} \PYG{n}{constant} \PYG{o}{=} \PYG{n+nc}{Const} \PYG{k}{of} \PYG{k+kt}{string}
+\PYG{k}{type} \PYG{n}{variable} \PYG{o}{=} \PYG{n+nc}{Var} \PYG{k}{of} \PYG{k+kt}{string}
+\PYG{k}{type} \PYG{n}{term} \PYG{o}{=} \PYG{n+nc}{ConstTerm} \PYG{k}{of} \PYG{n}{constant}
+          \PYG{o}{|} \PYG{n+nc}{VarTerm} \PYG{k}{of} \PYG{n}{variable}
+          \PYG{o}{|} \PYG{n+nc}{ComplexTerm} \PYG{k}{of} \PYG{n}{constant} \PYG{o}{*} \PYG{n}{term} \PYG{k+kt}{list}
+\PYG{k}{type} \PYG{n}{rule} \PYG{o}{=} \PYG{n}{term} \PYG{o}{*} \PYG{n}{term} \PYG{k+kt}{list}
+\PYG{k}{type} \PYG{n}{command} \PYG{o}{=} \PYG{n+nc}{Rule} \PYG{k}{of} \PYG{n}{term} \PYG{o}{*} \PYG{n}{term} \PYG{k+kt}{list} \PYG{o}{|} \PYG{n+nc}{Inquery} \PYG{k}{of} \PYG{n}{term}
+
+\PYG{c}{(* Unification and Substitution *)}
+\PYG{k}{type} \PYG{n}{substitution} \PYG{o}{=} \PYG{o}{(}\PYG{n}{variable} \PYG{o}{*} \PYG{n}{term}\PYG{o}{)} \PYG{k+kt}{list}
+\PYG{k}{let} \PYG{n}{identity\PYGZus{}subst} \PYG{o}{:} \PYG{n}{substitution} \PYG{o}{=} \PYG{n+nb+bp}{[]}
+
+\PYG{c}{(* helper functions *)}
+\PYG{k}{let} \PYG{k}{rec} \PYG{n}{occur} \PYG{o}{(}\PYG{n}{varname}\PYG{o}{:} \PYG{k+kt}{string}\PYG{o}{)} \PYG{o}{(}\PYG{n}{t}\PYG{o}{:} \PYG{n}{term}\PYG{o}{)} \PYG{o}{:} \PYG{k+kt}{bool} \PYG{o}{=}
+  \PYG{k}{match} \PYG{n}{t} \PYG{k}{with}
+\PYG{o}{|} \PYG{n+nc}{ConstTerm} \PYG{o}{\PYGZus{}} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb+bp}{false}
+\PYG{o}{|} \PYG{n+nc}{VarTerm} \PYG{o}{(}\PYG{n+nc}{Var} \PYG{n}{s}\PYG{o}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{varname} \PYG{o}{=} \PYG{n}{s}
+\PYG{o}{|} \PYG{n+nc}{ComplexTerm} \PYG{o}{(}\PYG{n+nc}{Const} \PYG{n}{s}\PYG{o}{,} \PYG{n}{ts}\PYG{o}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{exists} \PYG{o}{(}\PYG{n}{occur} \PYG{n}{varname}\PYG{o}{)} \PYG{n}{ts}
+\PYG{o}{;;}
+
+\PYG{k}{let} \PYG{k}{rec} \PYG{n}{subst\PYGZus{}fun} \PYG{o}{(}\PYG{n}{subst}\PYG{o}{:} \PYG{n}{substitution}\PYG{o}{)} \PYG{o}{(}\PYG{n}{varname}\PYG{o}{:} \PYG{k+kt}{string}\PYG{o}{)} \PYG{o}{=}
+  \PYG{k}{match} \PYG{n}{subst} \PYG{k}{with}
+\PYG{o}{|} \PYG{n+nb+bp}{[]} \PYG{o}{\PYGZhy{}\PYGZgt{}}
+    \PYG{n+nc}{VarTerm} \PYG{o}{(}\PYG{n+nc}{Var} \PYG{n}{varname}\PYG{o}{)}
+\PYG{o}{|} \PYG{o}{(}\PYG{n+nc}{Var} \PYG{n}{varname\PYGZsq{}}\PYG{o}{,} \PYG{n}{t}\PYG{o}{)} \PYG{o}{::} \PYG{n}{substs} \PYG{o}{\PYGZhy{}\PYGZgt{}}
+    \PYG{k}{if} \PYG{n}{varname\PYGZsq{}} \PYG{o}{=} \PYG{n}{varname} \PYG{k}{then} \PYG{n}{t} \PYG{k}{else} \PYG{n}{subst\PYGZus{}fun} \PYG{n}{substs} \PYG{n}{varname}
+\PYG{o}{;;}
+
+\PYG{k}{let} \PYG{k}{rec} \PYG{n}{lift\PYGZus{}subst\PYGZus{}term} \PYG{o}{(}\PYG{n}{subst}\PYG{o}{:} \PYG{n}{substitution}\PYG{o}{)} \PYG{o}{(}\PYG{n}{t}\PYG{o}{:} \PYG{n}{term}\PYG{o}{)} \PYG{o}{=}
+  \PYG{k}{match} \PYG{n}{t} \PYG{k}{with}
+\PYG{o}{|} \PYG{n+nc}{ConstTerm} \PYG{o}{(}\PYG{n+nc}{Const} \PYG{n}{s}\PYG{o}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{t}
+\PYG{o}{|} \PYG{n+nc}{VarTerm} \PYG{o}{(}\PYG{n+nc}{Var} \PYG{n}{varname}\PYG{o}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{subst\PYGZus{}fun} \PYG{n}{subst} \PYG{n}{varname}
+\PYG{o}{|} \PYG{n+nc}{ComplexTerm} \PYG{o}{(}\PYG{n+nc}{Const} \PYG{n}{s}\PYG{o}{,} \PYG{n}{ts}\PYG{o}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}}
+    \PYG{n+nc}{ComplexTerm} \PYG{o}{(}\PYG{n+nc}{Const} \PYG{n}{s}\PYG{o}{,} \PYG{n}{map} \PYG{o}{(}\PYG{n}{lift\PYGZus{}subst\PYGZus{}term} \PYG{n}{subst}\PYG{o}{)} \PYG{n}{ts}\PYG{o}{)}
+\PYG{o}{;;}
+
+\PYG{k}{let} \PYG{n}{lift\PYGZus{}subst\PYGZus{}term\PYGZus{}list} \PYG{n}{subst} \PYG{o}{(}\PYG{n}{ts}\PYG{o}{:}\PYG{n}{term} \PYG{k+kt}{list}\PYG{o}{)} \PYG{o}{=} \PYG{n}{map} \PYG{o}{(}\PYG{n}{lift\PYGZus{}subst\PYGZus{}term} \PYG{n}{subst}\PYG{o}{)} \PYG{n}{ts}\PYG{o}{;;}
+
+\PYG{c}{(* Cited from MPs and MLs. *)}
+\PYG{k}{let} \PYG{n}{subst\PYGZus{}compose} \PYG{o}{(}\PYG{n}{s2}\PYG{o}{:} \PYG{n}{substitution}\PYG{o}{)} \PYG{o}{(}\PYG{n}{s1}\PYG{o}{:} \PYG{n}{substitution}\PYG{o}{)} \PYG{o}{:} \PYG{n}{substitution} \PYG{o}{=}
+  \PYG{o}{(}\PYG{n}{filter} \PYG{o}{(}\PYG{k}{fun} \PYG{o}{(}\PYG{n}{tv}\PYG{o}{,\PYGZus{})} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{not}\PYG{o}{(}\PYG{n}{mem\PYGZus{}assoc} \PYG{n}{tv} \PYG{n}{s1}\PYG{o}{))} \PYG{n}{s2}\PYG{o}{)} \PYG{o}{@}
+  \PYG{o}{(}\PYG{n}{map} \PYG{o}{(}\PYG{k}{fun} \PYG{o}{(}\PYG{n}{tv}\PYG{o}{,}\PYG{n}{residue}\PYG{o}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{o}{(}\PYG{n}{tv}\PYG{o}{,} \PYG{n}{lift\PYGZus{}subst\PYGZus{}term} \PYG{n}{s2} \PYG{n}{residue}\PYG{o}{))} \PYG{n}{s1}\PYG{o}{)}
+
+\PYG{c}{(* Pick the subset of substitution @s that contains variables in @vars. *)}
+\PYG{k}{let} \PYG{k}{rec} \PYG{n}{pick\PYGZus{}subst} \PYG{o}{(}\PYG{n}{s}\PYG{o}{:} \PYG{n}{substitution}\PYG{o}{)} \PYG{o}{(}\PYG{n}{vars}\PYG{o}{:} \PYG{n}{variable} \PYG{k+kt}{list}\PYG{o}{)} \PYG{o}{:} \PYG{n}{substitution} \PYG{o}{=}
+  \PYG{k}{match} \PYG{n}{s} \PYG{k}{with}
+\PYG{o}{|} \PYG{n+nb+bp}{[]} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb+bp}{[]}
+\PYG{o}{|} \PYG{o}{(}\PYG{n}{v}\PYG{o}{,} \PYG{n}{t}\PYG{o}{)} \PYG{o}{::} \PYG{n}{rem} \PYG{o}{\PYGZhy{}\PYGZgt{}}
+    \PYG{k}{if} \PYG{n}{mem} \PYG{n}{v} \PYG{n}{vars} \PYG{k}{then} \PYG{o}{(}\PYG{n}{v}\PYG{o}{,} \PYG{n}{t}\PYG{o}{)} \PYG{o}{::} \PYG{n}{pick\PYGZus{}subst} \PYG{n}{rem} \PYG{n}{vars}
+                  \PYG{k}{else} \PYG{n}{pick\PYGZus{}subst} \PYG{n}{rem} \PYG{n}{vars}
+\PYG{k}{let} \PYG{k}{rec} \PYG{n}{unify} \PYG{o}{(}\PYG{n}{eqlst}\PYG{o}{:} \PYG{o}{(}\PYG{n}{term} \PYG{o}{*} \PYG{n}{term}\PYG{o}{)} \PYG{k+kt}{list}\PYG{o}{)} \PYG{o}{=}
+  \PYG{k}{let} \PYG{k}{rec} \PYG{n}{addNewEqs} \PYG{n}{ls1} \PYG{n}{ls2} \PYG{n}{acc} \PYG{o}{=}
+    \PYG{k}{match} \PYG{n}{ls1}\PYG{o}{,} \PYG{n}{ls2} \PYG{k}{with}
+  \PYG{o}{|} \PYG{n+nb+bp}{[]}\PYG{o}{,} \PYG{n+nb+bp}{[]} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nc}{Some} \PYG{n}{acc}
+  \PYG{o}{|} \PYG{o}{(}\PYG{n}{t1} \PYG{o}{::} \PYG{n}{tl1}\PYG{o}{),} \PYG{o}{(}\PYG{n}{t2} \PYG{o}{::} \PYG{n}{tl2}\PYG{o}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{addNewEqs} \PYG{n}{tl1} \PYG{n}{tl2} \PYG{o}{((}\PYG{n}{t1}\PYG{o}{,} \PYG{n}{t2}\PYG{o}{)} \PYG{o}{::} \PYG{n}{acc}\PYG{o}{)}
+  \PYG{o}{|} \PYG{o}{\PYGZus{}} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nc}{None}
+  \PYG{k}{in} \PYG{k}{match} \PYG{n}{eqlst} \PYG{k}{with}
+   \PYG{o}{|} \PYG{n+nb+bp}{[]} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nc}{Some}\PYG{o}{(}\PYG{n+nb+bp}{[]}\PYG{o}{)}
+   \PYG{o}{|} \PYG{o}{(}\PYG{n}{s}\PYG{o}{,}\PYG{n}{t}\PYG{o}{)} \PYG{o}{::} \PYG{n}{eqs} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{k}{if} \PYG{n}{s} \PYG{o}{=} \PYG{n}{t} \PYG{k}{then} \PYG{n}{unify} \PYG{n}{eqs}
+  \PYG{k}{else} \PYG{o}{(}\PYG{k}{match} \PYG{o}{(}\PYG{n}{s}\PYG{o}{,} \PYG{n}{t}\PYG{o}{)} \PYG{k}{with}
+     \PYG{o}{|} \PYG{o}{(}\PYG{n+nc}{ComplexTerm} \PYG{o}{((}\PYG{n+nc}{Const} \PYG{n}{c1}\PYG{o}{),} \PYG{n}{t1}\PYG{o}{),} \PYG{n+nc}{ComplexTerm} \PYG{o}{((}\PYG{n+nc}{Const} \PYG{n}{c2}\PYG{o}{),} \PYG{n}{t2}\PYG{o}{))} \PYG{o}{\PYGZhy{}\PYGZgt{}}
+          \PYG{k}{if} \PYG{n}{c1} \PYG{o}{=} \PYG{n}{c2} \PYG{k}{then} \PYG{o}{(}\PYG{k}{match} \PYG{o}{(}\PYG{n}{addNewEqs} \PYG{n}{t1} \PYG{n}{t2} \PYG{n}{eqs}\PYG{o}{)} \PYG{k}{with}
+                         \PYG{o}{|} \PYG{n+nc}{None} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nc}{None}
+                         \PYG{o}{|} \PYG{n+nc}{Some} \PYG{n}{l} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{unify} \PYG{n}{l}\PYG{o}{)}
+          \PYG{k}{else} \PYG{n+nc}{None}
+     \PYG{o}{|} \PYG{o}{(}\PYG{n+nc}{ComplexTerm} \PYG{o}{(}\PYG{n}{c}\PYG{o}{,} \PYG{n}{t}\PYG{o}{),} \PYG{n+nc}{VarTerm} \PYG{o}{(}\PYG{n+nc}{Var} \PYG{n}{v}\PYG{o}{))} \PYG{o}{\PYGZhy{}\PYGZgt{}}
+          \PYG{n}{unify} \PYG{o}{((}\PYG{n+nc}{VarTerm} \PYG{o}{(}\PYG{n+nc}{Var} \PYG{n}{v}\PYG{o}{),} \PYG{n+nc}{ComplexTerm} \PYG{o}{(}\PYG{n}{c}\PYG{o}{,} \PYG{n}{t}\PYG{o}{))} \PYG{o}{::} \PYG{n}{eqs}\PYG{o}{)}
+     \PYG{o}{|} \PYG{o}{(}\PYG{n+nc}{ConstTerm} \PYG{o}{(}\PYG{n+nc}{Const} \PYG{n}{s}\PYG{o}{),} \PYG{n+nc}{VarTerm} \PYG{o}{(}\PYG{n+nc}{Var} \PYG{n}{v}\PYG{o}{))} \PYG{o}{\PYGZhy{}\PYGZgt{}}
+          \PYG{n}{unify} \PYG{o}{((}\PYG{n+nc}{VarTerm} \PYG{o}{(}\PYG{n+nc}{Var} \PYG{n}{v}\PYG{o}{),} \PYG{n+nc}{ConstTerm} \PYG{o}{(}\PYG{n+nc}{Const} \PYG{n}{s}\PYG{o}{))} \PYG{o}{::} \PYG{n}{eqs}\PYG{o}{)}
+     \PYG{o}{|} \PYG{o}{(}\PYG{n+nc}{VarTerm} \PYG{o}{(}\PYG{n+nc}{Var} \PYG{n}{v}\PYG{o}{),} \PYG{n}{t}\PYG{o}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{k}{if} \PYG{o}{(}\PYG{n}{occur} \PYG{n}{v} \PYG{n}{t}\PYG{o}{)} \PYG{k}{then} \PYG{n+nc}{None}
+          \PYG{k}{else} \PYG{k}{let} \PYG{n}{eqs\PYGZsq{}} \PYG{o}{=}
+            \PYG{n}{map} \PYG{o}{(}\PYG{k}{fun} \PYG{o}{(}\PYG{n}{t1}\PYG{o}{,} \PYG{n}{t2}\PYG{o}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}}
+                  \PYG{o}{(}\PYG{n}{lift\PYGZus{}subst\PYGZus{}term} \PYG{o}{[(}\PYG{n+nc}{Var} \PYG{n}{v}\PYG{o}{,} \PYG{n}{t}\PYG{o}{)]} \PYG{n}{t1}\PYG{o}{,} \PYG{n}{lift\PYGZus{}subst\PYGZus{}term} \PYG{o}{[(}\PYG{n+nc}{Var} \PYG{n}{v}\PYG{o}{,} \PYG{n}{t}\PYG{o}{)]} \PYG{n}{t2}\PYG{o}{))}
+                \PYG{n}{eqs}
+               \PYG{k}{in} \PYG{o}{(}\PYG{k}{match} \PYG{o}{(}\PYG{n}{unify} \PYG{n}{eqs\PYGZsq{}}\PYG{o}{)} \PYG{k}{with}
+                   \PYG{o}{|} \PYG{n+nc}{None} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nc}{None}
+                   \PYG{o}{|} \PYG{n+nc}{Some} \PYG{n}{phi} \PYG{o}{\PYGZhy{}\PYGZgt{}}
+                       \PYG{n+nc}{Some} \PYG{o}{(}\PYG{n}{subst\PYGZus{}compose} \PYG{o}{[(}\PYG{n+nc}{Var} \PYG{n}{v}\PYG{o}{,} \PYG{n}{lift\PYGZus{}subst\PYGZus{}term} \PYG{n}{phi} \PYG{n}{t}\PYG{o}{)]} \PYG{n}{phi}\PYG{o}{))}
+      \PYG{o}{|} \PYG{o}{\PYGZus{}} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nc}{None}\PYG{o}{)}
+\PYG{o}{;;}
+
+
+\PYG{c}{(* Backtracking *)}
+
+\PYG{c}{(* generating fresh variables and rules *)}
+
+\PYG{k}{let} \PYG{o}{(}\PYG{n}{fresh}\PYG{o}{,} \PYG{n}{reset}\PYG{o}{)} \PYG{o}{=}
+  \PYG{k}{let} \PYG{n}{nxt} \PYG{o}{=} \PYG{n}{ref} \PYG{l+m+mi}{0} \PYG{k}{in}
+  \PYG{k}{let} \PYG{n}{f} \PYG{n+nb+bp}{()} \PYG{o}{=} \PYG{o}{(}\PYG{k}{let} \PYG{n}{r} \PYG{o}{=} \PYG{n+nc}{Var}\PYG{o}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZdl{}\PYGZdq{}} \PYG{o}{\PYGZca{}} \PYG{n}{string\PYGZus{}of\PYGZus{}int} \PYG{o}{!}\PYG{n}{nxt}\PYG{o}{)} \PYG{k}{in} \PYG{k}{let} \PYG{o}{\PYGZus{}} \PYG{o}{=} \PYG{n}{nxt} \PYG{o}{:=} \PYG{o}{!}\PYG{n}{nxt} \PYG{o}{+} \PYG{l+m+mi}{1} \PYG{k}{in} \PYG{n}{r}\PYG{o}{)} \PYG{k}{in}
+  \PYG{k}{let} \PYG{n}{r} \PYG{n+nb+bp}{()} \PYG{o}{=} \PYG{n}{nxt} \PYG{o}{:=} \PYG{l+m+mi}{0} \PYG{k}{in}
+  \PYG{o}{(}\PYG{n}{f}\PYG{o}{,} \PYG{n}{r}\PYG{o}{)}
+
+\PYG{c}{(* de\PYGZhy{}duplicate a list *)}
+\PYG{k}{let} \PYG{k}{rec} \PYG{n}{ddup} \PYG{n}{l} \PYG{o}{=}
+  \PYG{k}{match} \PYG{n}{l} \PYG{k}{with}
+\PYG{o}{|} \PYG{n+nb+bp}{[]} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb+bp}{[]}
+\PYG{o}{|}  \PYG{n}{x}\PYG{o}{::}\PYG{n}{xs} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{k}{let} \PYG{n}{dxs} \PYG{o}{=} \PYG{n}{ddup} \PYG{n}{xs} \PYG{k}{in}
+   \PYG{k}{if} \PYG{n}{mem} \PYG{n}{x} \PYG{n}{dxs} \PYG{k}{then} \PYG{n}{dxs} \PYG{k}{else} \PYG{n}{x}\PYG{o}{::}\PYG{n}{dxs}
+
+\PYG{k}{let} \PYG{k}{rec} \PYG{n}{collect\PYGZus{}variables\PYGZus{}in\PYGZus{}term} \PYG{o}{(}\PYG{n}{t}\PYG{o}{:} \PYG{n}{term}\PYG{o}{)} \PYG{o}{:} \PYG{n}{variable} \PYG{k+kt}{list}\PYG{o}{=}
+  \PYG{k}{match} \PYG{n}{t}
+  \PYG{k}{with}  \PYG{n+nc}{ConstTerm} \PYG{o}{\PYGZus{}} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb+bp}{[]}
+     \PYG{o}{|}  \PYG{n+nc}{VarTerm} \PYG{n}{v} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{o}{[}\PYG{n}{v}\PYG{o}{]}
+     \PYG{o}{|}  \PYG{n+nc}{ComplexTerm}\PYG{o}{(}\PYG{n}{c}\PYG{o}{,} \PYG{n}{ts}\PYG{o}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{collect\PYGZus{}variables\PYGZus{}in\PYGZus{}term\PYGZus{}list} \PYG{o}{(}\PYG{n}{ts}\PYG{o}{:} \PYG{n}{term} \PYG{k+kt}{list}\PYG{o}{)}
+\PYG{o+ow}{and} \PYG{n}{collect\PYGZus{}variables\PYGZus{}in\PYGZus{}term\PYGZus{}list} \PYG{o}{(}\PYG{n}{ts}\PYG{o}{:} \PYG{n}{term} \PYG{k+kt}{list}\PYG{o}{)} \PYG{o}{:} \PYG{n}{variable} \PYG{k+kt}{list} \PYG{o}{=}
+  \PYG{k}{match} \PYG{n}{ts}
+  \PYG{k}{with}  \PYG{n+nb+bp}{[]} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb+bp}{[]}
+     \PYG{o}{|}  \PYG{n}{t}\PYG{o}{::}\PYG{n}{ts} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{ddup} \PYG{o}{((}\PYG{n}{collect\PYGZus{}variables\PYGZus{}in\PYGZus{}term} \PYG{n}{t}\PYG{o}{)} \PYG{o}{@}
+                       \PYG{o}{(}\PYG{n}{collect\PYGZus{}variables\PYGZus{}in\PYGZus{}term\PYGZus{}list} \PYG{n}{ts}\PYG{o}{))}
+
+\PYG{k}{let} \PYG{k}{rec} \PYG{n}{fresh\PYGZus{}rule} \PYG{o}{(}\PYG{n}{t}\PYG{o}{,}\PYG{n}{ts}\PYG{o}{)} \PYG{o}{:} \PYG{n}{rule} \PYG{o}{=}
+  \PYG{k}{let} \PYG{n}{bound\PYGZus{}variables} \PYG{o}{=} \PYG{n}{collect\PYGZus{}variables\PYGZus{}in\PYGZus{}term\PYGZus{}list} \PYG{o}{(}\PYG{n}{t}\PYG{o}{::}\PYG{n}{ts}\PYG{o}{)} \PYG{k}{in}
+  \PYG{k}{let} \PYG{n}{subst} \PYG{o}{=} \PYG{n}{map} \PYG{o}{(}\PYG{k}{fun} \PYG{o}{(}\PYG{n}{v}\PYG{o}{:}\PYG{n}{variable}\PYG{o}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{o}{(}\PYG{n}{v}\PYG{o}{,} \PYG{n+nc}{VarTerm}\PYG{o}{(}\PYG{n}{fresh}\PYG{n+nb+bp}{()}\PYG{o}{)))}
+                  \PYG{n}{bound\PYGZus{}variables} \PYG{k}{in}
+  \PYG{o}{(}\PYG{n}{lift\PYGZus{}subst\PYGZus{}term} \PYG{n}{subst} \PYG{n}{t}\PYG{o}{,} \PYG{n}{lift\PYGZus{}subst\PYGZus{}term\PYGZus{}list} \PYG{n}{subst} \PYG{n}{ts}\PYG{o}{)}
+
+\PYG{k}{let} \PYG{k}{rec} \PYG{n}{solve} \PYG{o}{(}\PYG{n}{qs}\PYG{o}{:} \PYG{n}{term} \PYG{k+kt}{list}\PYG{o}{)}
+              \PYG{o}{(}\PYG{n}{rs}\PYG{o}{:} \PYG{n}{rule} \PYG{k+kt}{list}\PYG{o}{)}
+              \PYG{o}{(}\PYG{n}{rs\PYGZus{}togo}\PYG{o}{:} \PYG{n}{rule} \PYG{k+kt}{list}\PYG{o}{)}
+              \PYG{o}{(}\PYG{n}{s}\PYG{o}{:} \PYG{n}{substitution}\PYG{o}{)}
+              \PYG{o}{(}\PYG{n}{sols}\PYG{o}{:} \PYG{n}{substitution} \PYG{k+kt}{list}\PYG{o}{)}
+              \PYG{o}{(}\PYG{n}{k}\PYG{o}{:} \PYG{n}{substitution} \PYG{k+kt}{list} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{k}{\PYGZsq{}}\PYG{n}{a}\PYG{o}{)} \PYG{o}{=}
+  \PYG{k}{match} \PYG{n}{qs} \PYG{k}{with}
+\PYG{o}{|} \PYG{n+nb+bp}{[]} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{k}\PYG{o}{(}\PYG{n}{s}\PYG{o}{::}\PYG{n}{sols}\PYG{o}{)}
+\PYG{o}{|} \PYG{n}{q1}\PYG{o}{::}\PYG{n}{remq} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{o}{(}\PYG{k}{match} \PYG{n}{rs\PYGZus{}togo} \PYG{k}{with}
+  \PYG{o}{|} \PYG{n+nb+bp}{[]} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{k}\PYG{o}{(}\PYG{n}{sols}\PYG{o}{)}
+  \PYG{o}{|} \PYG{n}{r1}\PYG{o}{::}\PYG{n}{remr} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{k}{let} \PYG{n}{fresh\PYGZus{}r} \PYG{o}{=} \PYG{n}{fresh\PYGZus{}rule} \PYG{n}{r1} \PYG{k}{in}
+                \PYG{o}{(}\PYG{k}{match} \PYG{n}{unify} \PYG{o}{[(}\PYG{n}{q1}\PYG{o}{,} \PYG{n}{fst} \PYG{n}{fresh\PYGZus{}r}\PYG{o}{)]} \PYG{k}{with}
+    \PYG{o}{|} \PYG{n+nc}{None} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{solve} \PYG{n}{qs} \PYG{n}{rs} \PYG{n}{remr} \PYG{n}{s} \PYG{n}{sols} \PYG{n}{k}
+    \PYG{o}{|} \PYG{n+nc}{Some} \PYG{n}{sigma} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{solve} \PYG{o}{(}\PYG{n}{lift\PYGZus{}subst\PYGZus{}term\PYGZus{}list} \PYG{n}{sigma} \PYG{o}{(}\PYG{n}{remq} \PYG{o}{@} \PYG{o}{(}\PYG{n}{snd} \PYG{n}{fresh\PYGZus{}r}\PYG{o}{)))}
+                          \PYG{n}{rs}
+                          \PYG{n}{rs}
+                          \PYG{o}{(}\PYG{n}{subst\PYGZus{}compose} \PYG{n}{sigma} \PYG{n}{s}\PYG{o}{)}
+                          \PYG{n}{sols}
+                          \PYG{o}{(}\PYG{k}{fun} \PYG{n}{nsols} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{solve} \PYG{n}{qs} \PYG{n}{rs} \PYG{n}{remr} \PYG{n}{s} \PYG{n}{nsols} \PYG{n}{k}\PYG{o}{)))}
+\end{Verbatim}

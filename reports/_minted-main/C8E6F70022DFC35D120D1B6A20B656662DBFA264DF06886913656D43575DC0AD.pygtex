@@ -1,0 +1,11 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{l+s+sAtom}{?\PYGZhy{}} \PYG{n+nf}{addeq}\PYG{p}{(}\PYG{n+nf}{s}\PYG{p}{(}\PYG{l+s+sAtom}{zero}\PYG{p}{),} \PYG{n+nf}{s}\PYG{p}{(}\PYG{n+nf}{s}\PYG{p}{(}\PYG{l+s+sAtom}{zero}\PYG{p}{)),} \PYG{n+nv}{What}\PYG{p}{)} \PYG{p}{.}
+\PYG{l+s+s2}{\PYGZdq{}OK. I am thinking ...\PYGZdq{}}
+\PYG{l+s+s2}{\PYGZdq{}I found 1 solution.\PYGZdq{}}
+\PYG{p}{\PYGZob{}}\PYG{n+nv}{What} \PYG{l+s+sAtom}{\PYGZhy{}\PYGZgt{}} \PYG{n+nf}{s}\PYG{p}{(}\PYG{n+nf}{s}\PYG{p}{(}\PYG{n+nf}{s}\PYG{p}{(}\PYG{l+s+sAtom}{zero}\PYG{p}{)))\PYGZcb{}}
+
+\PYG{l+s+sAtom}{?\PYGZhy{}} \PYG{n+nf}{addeq}\PYG{p}{(}\PYG{n+nv}{What}\PYG{p}{,} \PYG{n+nf}{s}\PYG{p}{(}\PYG{l+s+sAtom}{zero}\PYG{p}{),} \PYG{n+nf}{s}\PYG{p}{(}\PYG{n+nf}{s}\PYG{p}{(}\PYG{n+nf}{s}\PYG{p}{(}\PYG{l+s+sAtom}{zero}\PYG{p}{))))} \PYG{p}{.}
+\PYG{l+s+s2}{\PYGZdq{}OK. I am thinking ...\PYGZdq{}}
+\PYG{l+s+s2}{\PYGZdq{}I found 1 solution.\PYGZdq{}}
+\PYG{p}{\PYGZob{}}\PYG{n+nv}{What} \PYG{l+s+sAtom}{\PYGZhy{}\PYGZgt{}} \PYG{n+nf}{s}\PYG{p}{(}\PYG{n+nf}{s}\PYG{p}{(}\PYG{l+s+sAtom}{zero}\PYG{p}{))\PYGZcb{}}
+\end{Verbatim}

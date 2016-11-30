@@ -1,0 +1,38 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{o}{\PYGZpc{}\PYGZob{}} \PYG{k}{open} \PYG{n+nc}{Main} \PYG{o}{\PYGZpc{}\PYGZcb{}}
+
+\PYG{o}{\PYGZpc{}}\PYG{n}{token} \PYG{o}{\PYGZlt{}}\PYG{k+kt}{string}\PYG{o}{\PYGZgt{}} \PYG{n+nc}{LWORD}
+\PYG{o}{\PYGZpc{}}\PYG{n}{token} \PYG{o}{\PYGZlt{}}\PYG{k+kt}{string}\PYG{o}{\PYGZgt{}} \PYG{n+nc}{UWORD}
+\PYG{o}{\PYGZpc{}}\PYG{n}{token} \PYG{n+nc}{COMMA} \PYG{n+nc}{CDASH} \PYG{n+nc}{QDASH} \PYG{n+nc}{LPAREN} \PYG{n+nc}{RPAREN} \PYG{n+nc}{DOT}
+
+\PYG{o}{\PYGZpc{}}\PYG{n}{start} \PYG{n}{main}
+\PYG{o}{\PYGZpc{}}\PYG{k}{type} \PYG{o}{\PYGZlt{}}\PYG{n+nn}{Main}\PYG{p}{.}\PYG{n}{command}\PYG{o}{\PYGZgt{}} \PYG{n}{main}
+\PYG{o}{\PYGZpc{}\PYGZpc{}}
+
+\PYG{n}{main}\PYG{o}{:}
+  \PYG{o}{|} \PYG{n}{rule} \PYG{n+nc}{DOT}                         \PYG{o}{\PYGZob{}} \PYG{o}{\PYGZdl{}}\PYG{l+m+mi}{1} \PYG{o}{\PYGZcb{}}
+  \PYG{o}{|} \PYG{n}{inquery} \PYG{n+nc}{DOT}                      \PYG{o}{\PYGZob{}} \PYG{o}{\PYGZdl{}}\PYG{l+m+mi}{1} \PYG{o}{\PYGZcb{}}
+
+\PYG{n}{rule}\PYG{o}{:}
+  \PYG{o}{|} \PYG{n}{term}                             \PYG{o}{\PYGZob{}} \PYG{n+nc}{Rule}\PYG{o}{(\PYGZdl{}}\PYG{l+m+mi}{1}\PYG{o}{,} \PYG{n+nb+bp}{[]}\PYG{o}{)} \PYG{o}{\PYGZcb{}}
+  \PYG{o}{|} \PYG{n}{term} \PYG{n+nc}{CDASH} \PYG{n}{term\PYGZus{}list}             \PYG{o}{\PYGZob{}} \PYG{n+nc}{Rule}\PYG{o}{(\PYGZdl{}}\PYG{l+m+mi}{1}\PYG{o}{,} \PYG{o}{\PYGZdl{}}\PYG{l+m+mi}{3}\PYG{o}{)} \PYG{o}{\PYGZcb{}}
+
+\PYG{n}{inquery}\PYG{o}{:}
+  \PYG{o}{|} \PYG{n+nc}{QDASH} \PYG{n}{term}                       \PYG{o}{\PYGZob{}} \PYG{n+nc}{Inquery} \PYG{o}{\PYGZdl{}}\PYG{l+m+mi}{2} \PYG{o}{\PYGZcb{}}
+
+\PYG{n}{term}\PYG{o}{:}
+  \PYG{o}{|} \PYG{n}{lword}                            \PYG{o}{\PYGZob{}} \PYG{n+nc}{ConstTerm} \PYG{o}{\PYGZdl{}}\PYG{l+m+mi}{1} \PYG{o}{\PYGZcb{}}
+  \PYG{o}{|} \PYG{n}{uword}                            \PYG{o}{\PYGZob{}} \PYG{n+nc}{VarTerm} \PYG{o}{\PYGZdl{}}\PYG{l+m+mi}{1} \PYG{o}{\PYGZcb{}}
+  \PYG{o}{|} \PYG{n}{lword} \PYG{n+nc}{LPAREN} \PYG{n+nc}{RPAREN}              \PYG{o}{\PYGZob{}} \PYG{n+nc}{ComplexTerm}\PYG{o}{(\PYGZdl{}}\PYG{l+m+mi}{1}\PYG{o}{,} \PYG{n+nb+bp}{[]}\PYG{o}{)} \PYG{o}{\PYGZcb{}}
+  \PYG{o}{|} \PYG{n}{lword} \PYG{n+nc}{LPAREN} \PYG{n}{term\PYGZus{}list} \PYG{n+nc}{RPAREN}    \PYG{o}{\PYGZob{}} \PYG{n+nc}{ComplexTerm}\PYG{o}{(\PYGZdl{}}\PYG{l+m+mi}{1}\PYG{o}{,} \PYG{o}{\PYGZdl{}}\PYG{l+m+mi}{3}\PYG{o}{)} \PYG{o}{\PYGZcb{}}
+
+\PYG{n}{term\PYGZus{}list}\PYG{o}{:}
+  \PYG{o}{|} \PYG{n}{term}                             \PYG{o}{\PYGZob{}} \PYG{o}{[\PYGZdl{}}\PYG{l+m+mi}{1}\PYG{o}{]} \PYG{o}{\PYGZcb{}}
+  \PYG{o}{|} \PYG{n}{term} \PYG{n+nc}{COMMA} \PYG{n}{term\PYGZus{}list}             \PYG{o}{\PYGZob{}} \PYG{o}{\PYGZdl{}}\PYG{l+m+mi}{1}\PYG{o}{::\PYGZdl{}}\PYG{l+m+mi}{3} \PYG{o}{\PYGZcb{}}
+
+\PYG{n}{lword}\PYG{o}{:}
+  \PYG{o}{|} \PYG{n+nc}{LWORD}                            \PYG{o}{\PYGZob{}} \PYG{n+nc}{Const} \PYG{o}{\PYGZdl{}}\PYG{l+m+mi}{1} \PYG{o}{\PYGZcb{}}
+
+\PYG{n}{uword}\PYG{o}{:}
+  \PYG{o}{|} \PYG{n+nc}{UWORD}                            \PYG{o}{\PYGZob{}} \PYG{n+nc}{Var} \PYG{o}{\PYGZdl{}}\PYG{l+m+mi}{1} \PYG{o}{\PYGZcb{}}
+\end{Verbatim}

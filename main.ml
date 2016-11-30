@@ -160,6 +160,33 @@ let rec print_list lst print_ele (separator : string) =
      |  x::xs -> (print_ele x; print_string separator; print_list xs print_ele separator)
 ;;
 
+
+(* De-duplicate substitution list *)
+let rec is_same_subst subst subst' =
+  match subst
+  with [] -> (
+    match subst'
+    with [] -> true
+       | _ -> false
+  )
+     | x :: substs -> if List.exists ((=) x) subst' then is_same_subst substs (snd(List.partition ((=) x) subst')) else false
+;;
+
+
+
+let rec contain_subst subst l =
+  match l
+  with [] -> false
+     | subst' :: ls -> if is_same_subst subst subst' then true else contain_subst subst ls
+;;
+
+let rec dd_subst (sols:substitution list) = 
+  match sols
+  with [] -> []
+     | subst1 :: ls -> if contain_subst subst1 ls then dd_subst ls else subst1 :: (dd_subst ls)
+;;
+
+
 let print_term = pp;;
 let print_term_list ts = print_list ts print_term ", "
 
@@ -192,28 +219,9 @@ let print_rules (rs: rule list) =
   print_list rs print_rule "\n"
 ;;
 
-(* De-duplicate substitution list *)
-let rec is_same_subst subst subst' =
-  match subst
-  with [] -> (
-    match subst'
-    with [] -> true
-       | _ -> false
-  )
-     | x :: substs -> if List.exists ((=) x) subst' then is_same_subst substs (snd(List.partition ((=) x) subst')) else false
-;;
 
-let rec contain_subst subst l =
-  match l
-  with [] -> false
-     | subst' :: ls -> if is_same_subst subst subst' then true else contain_subst subst ls
-;;
 
-let rec dd_subst (sols:substitution list) = 
-  match sols
-  with [] -> []
-     | subst1 :: ls -> if contain_subst subst1 ls then dd_subst ls else subst1 :: (dd_subst ls)
-;;
+
   
 
 
