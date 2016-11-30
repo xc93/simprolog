@@ -4,9 +4,20 @@ open List
 open Main
 
 let rules : rule list ref = ref []
+let is_interactive = 0 = (Sys.command "[ -t 0 ]")
 
-let _ =  try
+let _ = 
+  (* Add here *)
+  (if is_interactive
+      then print_endline "\nWelcome to the SimProlog \n"
+      else ()); 
+  (****************************************************)
+  try
   let lexbuf = Lexing.from_channel stdin in
+  (* Add here *)
+  (if is_interactive
+    then (print_string ">>"; flush stdout));
+  (*****************************************************)
   while true do
     let result = Parser.main Lexer.token lexbuf in
    (match result
