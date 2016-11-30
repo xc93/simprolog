@@ -193,13 +193,27 @@ let print_rules (rs: rule list) =
 ;;
 
 (* De-duplicate substitution list *)
+let rec is_same_subst subst subst' =
+  match subst
+  with [] -> (
+    match subst'
+    with [] -> true
+       | _ -> false
+  )
+     | x :: substs -> if List.exists ((=) x) subst' then is_same_subst substs (snd(List.partition ((=) x) subst')) else false
+;;
+
+let rec contain_subst subst l =
+  match l
+  with [] -> false
+     | subst' :: ls -> if is_same_subst subst subst' then true else contain_subst subst ls
+;;
+
 let rec dd_subst (sols:substitution list) = 
   match sols
   with [] -> []
-     | subst :: [] -> subst :: []
-     | subst1 :: subst2 :: ls -> if List.mem subst1 (subst2 :: ls) then dd_subst (subst2 :: ls) else subst1 :: (dd_subst (subst2 :: ls))
+     | subst1 :: ls -> if contain_subst subst1 ls then dd_subst ls else subst1 :: (dd_subst ls)
 ;;
-
   
 
 
