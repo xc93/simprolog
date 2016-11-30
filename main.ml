@@ -166,7 +166,7 @@ let print_term_list ts = print_list ts print_term ", "
 let print_var (Var s) = print_string s
 let print_subst (s:substitution) = print_string "{"; print_list s (fun (v, t) -> print_var v; print_string " -> "; print_term t) ","; print_string "}"
 
-let print_sol (sols:substitution list) = print_list sols print_subst "\n";;
+let print_sol (sols:substitution list) = print_list (dd_subst sols) print_subst "\n";;
 let print_sols = print_sol;;
 
 
