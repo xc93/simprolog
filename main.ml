@@ -52,6 +52,8 @@ let rec pick_subst (s: substitution) (vars: variable list) : substitution =
 | (v, t) :: rem -> 
     if mem v vars then (v, t) :: pick_subst rem vars
                   else pick_subst rem vars
+
+(* Unification *)
 let rec unify (eqlst: (term * term) list) =
   let rec addNewEqs ls1 ls2 acc =
     match ls1, ls2 with
@@ -112,12 +114,22 @@ and collect_variables_in_term_list (ts: term list) : variable list =
      |  t::ts -> ddup ((collect_variables_in_term t) @
                        (collect_variables_in_term_list ts))
 
+(* generating a fresh instance of an implicit quantified rule by
+   replacing all variables by fresh variables *)
+(* this prevents incorrect variable capturing *)
 let rec fresh_rule (t,ts) : rule =
   let bound_variables = collect_variables_in_term_list (t::ts) in
   let subst = map (fun (v:variable) -> (v, VarTerm(fresh()))) 
                   bound_variables in
   (lift_subst_term subst t, lift_subst_term_list subst ts)
 
+
+(* find all solutions for a list of inquery @qs using backtracking.
+ * @rs_togo is the list of rules that haven't been tried to resolve
+ * the first inquery. @s is the substitution on-the-fly so fat and
+ * @sols contains all found solutions.
+ * @k is the continuation: yes, I use CPS style.
+ *)
 let rec solve (qs: term list)
               (rs: rule list) 
               (rs_togo: rule list) 
@@ -125,18 +137,18 @@ let rec solve (qs: term list)
               (sols: substitution list) 
               (k: substitution list -> 'a) =
   match qs with
-| [] -> k(s::sols)
+| [] -> k(s::sols) (* no more question to solve: done and @s is the last solution. *)
 | q1::remq -> (match rs_togo with
-  | [] -> k(sols)
+  | [] -> k(sols)  (* no more rules to go: done and abandon @s. *)
   | r1::remr -> let fresh_r = fresh_rule r1 in
                 (match unify [(q1, fst fresh_r)] with
-    | None -> solve qs rs remr s sols k
-    | Some sigma -> solve (lift_subst_term_list sigma (remq @ (snd fresh_r)))
+    | None -> solve qs rs remr s sols k     (* cannot use the first rule_to_go: try the rest rules_to_go. *)
+    | Some sigma -> solve (lift_subst_term_list sigma (remq @ (snd fresh_r)))   (* solve the new sub-problems, and after that ... *)
                           rs
                           rs 
                           (subst_compose sigma s) 
                           sols 
-                          (fun nsols -> solve qs rs remr s nsols k)))
+                          (fun nsols -> solve qs rs remr s nsols k)))           (* collect solutions and continue solving the current problem *)
 
 (* Prettyprinting *)
 (* printy-print function for term *)
