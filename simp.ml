@@ -31,14 +31,15 @@ let _ =
                              !rules 
                              identity_subst 
                              [] 
-                             (fun sols -> sols) in
-	    let sols = dd_subst sols in
+                             (fun sols -> dd_subst sols) in
+            let variables_in_inquery = collect_variables_in_term t in
+            let sols = (map (fun subst -> pick_subst subst variables_in_inquery) 
+                            sols) in
+            let sols = dd_subst sols in
             print_string "I found ";
             print_int (length sols);
             print_string " solutions.\n";
-            let variables_in_inquery = collect_variables_in_term t in
-            print_sols (map (fun subst -> pick_subst subst variables_in_inquery) 
-                            sols);
+            print_sols sols;
             print_string "\n";
        |  ClearComm ->
             rules := []; print_string "OK. I know nothing now.\n";

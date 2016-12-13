@@ -16,7 +16,7 @@
 
 This project fulfills our extra-credit workload in CS421 -- Programming Languages and Compilers. Among all other projects listed in Elsa's website, we found this one the most interesting and meaningful.
 
-We aim for a Prolog implementation in OCaml. The Prolog that we implemented in this project is a fragment of the real Prolog language, so we refer it to SimProlog. SimProlog is able to reason with facts and rules about (potentially nested) Prolog terms, but do not support data reasoning (such as integers) and data structures (such as lists). 
+We aim for a Prolog implementation in OCaml. The Prolog that we implemented in this project is a fragment of the real Prolog language, so we refer it to SimProlog. SimProlog is able to reason with facts and rules about (potentially nested) Prolog terms, but do not support reasoning with data (such as integers and booleans) and data structures (such as lists and trees). 
 
 \section{Implementation}
 
@@ -64,10 +64,9 @@ let rec solve (qs: term list)
 
 We enclose our words as in-line comments below.
 \begin{description}
-	\item[line 3] In the effort to solve the first question in {\tt qs}, we try rules that we have not tried yet in {\tt rs\_togo}, a subset of all rules. 
+	\item[line 3] In the effort to solve the first question in {\tt qs}, we try rules that we have not tried yet in {\tt rs\_togo}, a subset of {\tt rs}. 
 	\item[line 4] We record the current substitution, and hope it would become a new solution.
 	\item[line 5] All solutions that we have found so far.
-	\item[line 7] Match question list.
 	\item[line 8] If no more question to solve, then pass the current solution together with the ones that we have found {\tt s::sols} to the continuation {\tt k}.
 	\item[line 10] If there is some question {\tt q1} to solve but no rule to apply (in {\tt rs\_togo}), then we fail to find a new solution, and can only pass {\tt sols} to the continuation.
 	\item[line 14] If the first rule cannot resolve the first question, we try the rest of rules by calling {\tt solve} recursively over the same problem but with {\tt rs\_togo} replaced by {\tt remr}.
