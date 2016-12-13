@@ -139,10 +139,10 @@ let rec solve (qs: term list)
   match qs with
 | [] -> k(s::sols) (* no more question to solve: done and @s is the last solution. *)
 | q1::remq -> (match rs_togo with
-  | [] -> k(sols)  (* no more rules to go: done and abandon @s. *)
+  | [] -> k(sols)  (* no more rules togo: done and abandon @s. *)
   | r1::remr -> let fresh_r = fresh_rule r1 in
                 (match unify [(q1, fst fresh_r)] with
-    | None -> solve qs rs remr s sols k     (* cannot use the first rule_to_go: try the rest rules_to_go. *)
+    | None -> solve qs rs remr s sols k     (* cannot use the first rule_togo: try the rest rules_to_go. *)
     | Some sigma -> solve (lift_subst_term_list sigma (remq @ (snd fresh_r)))   (* solve the new sub-problems, and after that ... *)
                           rs
                           rs 

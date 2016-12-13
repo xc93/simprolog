@@ -23,7 +23,7 @@ let _ =
             rules := r :: !rules;
             print_string "OK. I know ";
 	    print_int (length !rules);
-            print_string " rules now.";
+            print_string " rules now.\n";
        |  Inquery t ->  
   	    print_string "OK. I am thinking ...\n";
             let sols = solve [t] 
@@ -40,10 +40,11 @@ let _ =
             print_sols (map (fun subst -> pick_subst subst variables_in_inquery) 
                             sols);
        |  ClearComm ->
-            rules := []; print_string "OK. I know nothing now.";
+            rules := []; print_string "OK. I know nothing now.\n";
        |  ShowComm ->
             print_string "OK. I know the following rule(s).\n";
             print_rules !rules;
+            print_string "\n";
     );
     print_newline(); flush stdout
     done
