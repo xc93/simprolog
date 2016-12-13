@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.11.29)  13 DEC 2016 14:10
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.11.29)  13 DEC 2016 14:45
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -806,8 +806,12 @@ D.pygtex)
 D.pygtex [3])
 \openout3 = `main.pyg'.
 
+runsystem(pygmentize -l prolog -f latex -P commandprefix=PYG -F tokenmerge -o _
+minted-main/9D4FFA3581A777D70B69D0DF1F26A2282DBFA264DF06886913656D43575DC0AD.py
+gtex main.pyg)...executed.
 
-(./_minted-main/A4C65D160FB1DDD144CC8FE5578324FC2DBFA264DF06886913656D43575DC0A
+
+(./_minted-main/9D4FFA3581A777D70B69D0DF1F26A2282DBFA264DF06886913656D43575DC0A
 D.pygtex)
 \openout3 = `main.pyg'.
 
@@ -900,13 +904,17 @@ Overfull \hbox (25.24727pt too wide) in paragraph at lines 190--202
 
 
 (./_minted-main/BF1D2F8A8765310370880362E9B291522E92CF7952981697980C6B12BCEEF18
-2.pygtex [7] [8] [9]) [10] (./main.aux)
+2.pygtex [7] [8] [9])
+runsystem(rm _minted-main/A4C65D160FB1DDD144CC8FE5578324FC2DBFA264DF06886913656
+D43575DC0AD.pygtex)...executed.
+
+ [10] (./main.aux)
 runsystem(rm main.pyg)...executed.
 
  ) 
 Here is how much of TeX's memory you used:
- 7419 strings out of 493013
- 118211 string characters out of 6133327
+ 7420 strings out of 493013
+ 118275 string characters out of 6133327
  230166 words of memory out of 5000000
  10838 multiletter control sequences out of 15000+600000
  8566 words of font info for 31 fonts, out of 8000000 for 9000
@@ -923,7 +931,7 @@ local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/lo
 cal/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local
 /texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/
 texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb>
-Output written on main.pdf (10 pages, 136905 bytes).
+Output written on main.pdf (10 pages, 136618 bytes).
 PDF statistics:
  78 PDF objects out of 1000 (max. 8388607)
  55 compressed objects within 1 object stream

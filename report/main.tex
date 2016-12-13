@@ -139,6 +139,8 @@ SimProlog is able to reason about Peano arithmetic system, including a successor
 true .
 addeq(X, zero, X) :- true .
 addeq(X, s(Y), s(Z)) :- addeq(X, Y, Z) .
+addeq(zero, Y, Y) :- true .
+addeq(s(X), Y, s(Z)) :- addeq(X, Y, Z) .
 \end{minted}
 
 One important thing when one using SimProlog is to make sure his/her rules guarantee termination. SimProlog does not check termination, and it falls into the pitfall of infinite loops if rules are badly designed.
@@ -154,8 +156,6 @@ One important thing when one using SimProlog is to make sure his/her rules guara
 "I found 1 solution."
 {What -> s(s(zero))}
 \end{minted}
-
-Notice how the second argument {\tt s(zero)} helps prevent SimProlog from non-termination. 
 
 \section*{Appendix}
 \subsection*{Original proposal}
