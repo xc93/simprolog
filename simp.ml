@@ -15,9 +15,9 @@ let _ =
   try
   let lexbuf = Lexing.from_channel stdin in
   while true do
-    let result = Parser.main Lexer.token lexbuf in
    (if is_interactive
     then (print_string ">>"; flush stdout));
+    let result = Parser.main Lexer.token lexbuf in
    (match result
     with  Rule(t,ts) -> let r = (t,ts) in
             rules := r :: !rules;
@@ -39,6 +39,7 @@ let _ =
             let variables_in_inquery = collect_variables_in_term t in
             print_sols (map (fun subst -> pick_subst subst variables_in_inquery) 
                             sols);
+            print_string "\n";
        |  ClearComm ->
             rules := []; print_string "OK. I know nothing now.\n";
        |  ShowComm ->
