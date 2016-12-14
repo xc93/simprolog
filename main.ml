@@ -62,17 +62,22 @@ let rec unify (eqlst: (term * term) list) =
   | _ -> None
   in match eqlst with
    | [] -> Some([])
+   (*Delet*)
    | (s,t) :: eqs -> if s = t then unify eqs
+   (*Decompose*)
   else (match (s, t) with 
      | (ComplexTerm ((Const c1), t1), ComplexTerm ((Const c2), t2)) ->
           if c1 = c2 then (match (addNewEqs t1 t2 eqs) with 
                          | None -> None 
                          | Some l -> unify l)
           else None
+     (*Orient*)
      | (ComplexTerm (c, t), VarTerm (Var v)) -> 
           unify ((VarTerm (Var v), ComplexTerm (c, t)) :: eqs)
+     (*Oirent*)
      | (ConstTerm (Const s), VarTerm (Var v)) -> 
           unify ((VarTerm (Var v), ConstTerm (Const s)) :: eqs)
+     (*Eliminate*)
      | (VarTerm (Var v), t) -> if (occur v t) then None
           else let eqs' = 
             map (fun (t1, t2) -> 
