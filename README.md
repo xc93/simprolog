@@ -13,7 +13,7 @@ This project is a OCaml implementation of a fragment of Prolog. This project inc
 
 * install OCaml 4.03.0.
 * compile SimProlog by executing `. mk` in terminal.
-* launch interactive interface by executing `./simp` interminal.
+* launch interactive interface by executing `./simp` in terminal.
 
 ## Examples and more
 
