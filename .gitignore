@@ -3,7 +3,6 @@
 *.cmi
 *.aux
 *.log
-*.pdf
 *.annot
 *.cma
 *.a
@@ -34,3 +33,7 @@
 *.mtc1
 *.out
 *.synctex.gz
+lexer.ml
+simp
+parser.mli
+report/_minted-main
