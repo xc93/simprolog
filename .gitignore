@@ -36,4 +36,5 @@
 lexer.ml
 simp
 parser.mli
+parser.ml
 report/_minted-main
