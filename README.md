@@ -9,7 +9,7 @@ This project is a OCaml implementation of a fragment of Prolog. This project inc
 * main.ml    -- Main functionality of unification and backtracking.
 * simp.ml    -- Interactive environment interface.
 
-##Installation
+## Installation
 
 * install OCaml 4.03.0.
 * compile SimProlog by executing `. mk` in terminal.
